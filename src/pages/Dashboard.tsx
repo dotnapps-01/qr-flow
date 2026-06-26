@@ -1,0 +1,644 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { mockQrCodes, type QrCode } from '../data/mockQrCodes';
+import { 
+  Plus, 
+  Search, 
+  Folder, 
+  Filter, 
+  ChevronDown, 
+  List, 
+  Grid, 
+  ChevronLeft, 
+  ChevronRight,
+  QrCode as QrCodeIcon,
+  MoreVertical,
+  Star,
+  ArrowLeft,
+  X,
+  Trash2,
+  FolderPlus
+} from 'lucide-react';
+import './Dashboard.css';
+
+type Tab = 'All' | 'Static' | 'Dynamic' | 'Favorites' | 'Scheduled';
+type SortOption = 'Most recent' | 'Name' | 'Scans';
+type ViewMode = 'list' | 'grid';
+
+export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+
+  // Core Data State
+  const [qrCodesData, setQrCodesData] = useState<QrCode[]>(mockQrCodes);
+  const [folders, setFolders] = useState<{id: string, name: string}[]>([]);
+  
+  // Navigation State
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+
+  // UI State
+  const [activeTab, setActiveTab] = useState<Tab>('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortBy, setSortBy] = useState<SortOption>('Most recent');
+  const [showVisits, setShowVisits] = useState(true);
+  
+  // Folder Creation State
+  const [folderSearch, setFolderSearch] = useState('');
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  
+  // Modal State
+  const [isAddItemsModalOpen, setIsAddItemsModalOpen] = useState(false);
+  const [isBulkMoveModalOpen, setIsBulkMoveModalOpen] = useState(false);
+
+  // Selection State
+  const [selectedQrCodes, setSelectedQrCodes] = useState<string[]>([]);
+
+  // Folder Rename State
+  const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
+  const [editFolderName, setEditFolderName] = useState('');
+
+  // Selection Handlers
+  const toggleSelection = (qrId: string) => {
+    setSelectedQrCodes(prev => 
+      prev.includes(qrId) ? prev.filter(id => id !== qrId) : [...prev, qrId]
+    );
+  };
+
+  const handleSelectAll = (checked: boolean, pageData: QrCode[]) => {
+    if (checked) {
+      const pageIds = pageData.map(qr => qr.id);
+      setSelectedQrCodes(prev => Array.from(new Set([...prev, ...pageIds])));
+    } else {
+      const pageIds = new Set(pageData.map(qr => qr.id));
+      setSelectedQrCodes(prev => prev.filter(id => !pageIds.has(id)));
+    }
+  };
+
+  const clearSelection = () => setSelectedQrCodes([]);
+
+  const handleCreateFolder = () => {
+    if (newFolderName.trim()) {
+      setFolders([...folders, { id: Date.now().toString(), name: newFolderName.trim() }]);
+      setNewFolderName('');
+      setIsCreatingFolder(false);
+    }
+  };
+
+  const handleDeleteFolder = (folderId: string) => {
+    setQrCodesData(prev => prev.map(qr => qr.folderId === folderId ? { ...qr, folderId: undefined } : qr));
+    setFolders(prev => prev.filter(f => f.id !== folderId));
+    if (selectedFolderId === folderId) setSelectedFolderId(null);
+  };
+
+  const saveRenameFolder = (folderId: string) => {
+    if (editFolderName.trim()) {
+      setFolders(prev => prev.map(f => f.id === folderId ? { ...f, name: editFolderName.trim() } : f));
+    }
+    setEditingFolderId(null);
+  };
+
+  const handleAddQrToFolder = (qrId: string) => {
+    if (selectedFolderId) {
+      setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, folderId: selectedFolderId } : qr));
+    }
+  };
+
+  const handleRemoveQrFromFolder = (qrId: string) => {
+    setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, folderId: undefined } : qr));
+  };
+
+  const toggleFavorite = (qrId: string) => {
+    setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, isFavorite: !qr.isFavorite } : qr));
+  };
+
+  // Bulk Handlers
+  const handleBulkDelete = () => {
+    setQrCodesData(prev => prev.filter(qr => !selectedQrCodes.includes(qr.id)));
+    clearSelection();
+  };
+
+  const handleBulkFavorite = () => {
+    const allSelectedAreFavorites = selectedQrCodes.every(id => {
+      const qr = qrCodesData.find(q => q.id === id);
+      return qr ? qr.isFavorite : false;
+    });
+
+    setQrCodesData(prev => prev.map(qr => {
+      if (selectedQrCodes.includes(qr.id)) {
+        return { ...qr, isFavorite: !allSelectedAreFavorites };
+      }
+      return qr;
+    }));
+  };
+
+  const handleBulkMove = (folderId: string) => {
+    setQrCodesData(prev => prev.map(qr => {
+      if (selectedQrCodes.includes(qr.id)) {
+        return { ...qr, folderId };
+      }
+      return qr;
+    }));
+    setIsBulkMoveModalOpen(false);
+    clearSelection();
+  };
+
+  // Derived Data
+  const filteredData = useMemo(() => {
+    let data = [...qrCodesData];
+    
+    // Filter by Folder
+    if (selectedFolderId) {
+      data = data.filter(qr => qr.folderId === selectedFolderId);
+    }
+
+    // Filter by Tab
+    if (activeTab === 'Static') data = data.filter(qr => qr.type === 'Static');
+    if (activeTab === 'Dynamic') data = data.filter(qr => qr.type === 'Dynamic');
+    if (activeTab === 'Favorites') data = data.filter(qr => qr.isFavorite);
+    if (activeTab === 'Scheduled') data = data.filter(qr => qr.isScheduled);
+
+    // Filter by Search
+    if (searchQuery) {
+      data = data.filter(qr => qr.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+
+    // Sort
+    data.sort((a, b) => {
+      if (sortBy === 'Name') return a.name.localeCompare(b.name);
+      if (sortBy === 'Scans') return b.scans - a.scans;
+      // Default: Most recent
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return data;
+  }, [qrCodesData, activeTab, searchQuery, sortBy, selectedFolderId]);
+
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
+  
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [totalPages, currentPage]);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredData.slice(start, start + rowsPerPage);
+  }, [filteredData, currentPage, rowsPerPage]);
+
+  const tabs: Tab[] = ['All', 'Static', 'Dynamic', 'Favorites', 'Scheduled'];
+  const selectedFolder = folders.find(f => f.id === selectedFolderId);
+
+  // Unassigned QR codes (for the modal)
+  const unassignedQrCodes = qrCodesData.filter(qr => qr.folderId !== selectedFolderId);
+
+  return (
+    <div className="dashboard-container animate-fade-in">
+      
+      {/* Header */}
+      <header className="dashboard-header" style={{ marginBottom: selectedFolderId ? 0 : undefined }}>
+        {selectedFolderId ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <Button variant="outline" size="icon" onClick={() => setSelectedFolderId(null)}>
+              <ArrowLeft size={20} />
+            </Button>
+            <h1 className="text-display">{selectedFolder?.name}</h1>
+          </div>
+        ) : (
+          <h1 className="text-display">My QR codes</h1>
+        )}
+        <Button leftIcon={<Plus size={18} />} onClick={() => navigate('/builder')}>Create New</Button>
+      </header>
+
+      {/* Folders Section - Hide if inside a folder */}
+      {!selectedFolderId && (
+        <section className="dashboard-section">
+          <h2 className="dashboard-section-title">My folders</h2>
+          
+          <div className="dashboard-search-wrapper">
+            <Search className="search-icon-inline" size={16} />
+            <Input 
+              placeholder="Search..." 
+              className="input-with-icon" 
+              value={folderSearch}
+              onChange={(e) => setFolderSearch(e.target.value)}
+            />
+          </div>
+
+          {folders.length === 0 && !isCreatingFolder ? (
+            <Card className="folder-empty-state border-dashed shadow-none">
+              <div className="folder-empty-content">
+                <Folder size={20} />
+                <span>Here you can manage your folders</span>
+                <Button variant="ghost" size="sm" className="btn-create-folder" onClick={() => setIsCreatingFolder(true)}>Create folder</Button>
+              </div>
+            </Card>
+          ) : (
+            <div className="folders-grid">
+              {folders.filter(f => f.name.toLowerCase().includes(folderSearch.toLowerCase())).map(f => (
+                 <Card key={f.id} className="folder-card shadow-sm border-light" onClick={() => setSelectedFolderId(f.id)}>
+                    <Folder size={16} style={{ color: 'var(--text-muted)' }} /> 
+                    {editingFolderId === f.id ? (
+                       <Input 
+                         autoFocus
+                         value={editFolderName}
+                         onChange={e => setEditFolderName(e.target.value)}
+                         onKeyDown={e => {
+                            if (e.key === 'Enter') saveRenameFolder(f.id);
+                            if (e.key === 'Escape') setEditingFolderId(null);
+                         }}
+                         onClick={e => e.stopPropagation()}
+                         style={{ height: '28px', fontSize: '14px', flex: 1, padding: '0 8px' }}
+                       />
+                    ) : (
+                       <span className="truncate" style={{ flex: 1 }}>{f.name}</span>
+                    )}
+
+                    {editingFolderId !== f.id && (
+                      <div className="dropdown-wrapper" onClick={e => e.stopPropagation()}>
+                         <Button variant="ghost" size="icon" style={{color: 'var(--text-muted)', width: '24px', height: '24px'}}><MoreVertical size={16}/></Button>
+                         <div className="dropdown-menu narrow">
+                            <button className="dropdown-item" onClick={() => setSelectedFolderId(f.id)}>Open</button>
+                            <button className="dropdown-item" onClick={() => { setEditingFolderId(f.id); setEditFolderName(f.name); }}>Rename</button>
+                            <button className="dropdown-item" style={{color: 'var(--danger-color)'}} onClick={() => handleDeleteFolder(f.id)}>Delete</button>
+                         </div>
+                      </div>
+                    )}
+                 </Card>
+              ))}
+              {isCreatingFolder ? (
+                 <Card className="folder-card shadow-sm border-light folder-create-inline" style={{ cursor: 'default', gridColumn: '1 / -1', maxWidth: '400px', padding: 'var(--space-4)' }}>
+                   <div className="input-wrapper">
+                     <Input 
+                       autoFocus 
+                       value={newFolderName} 
+                       onChange={e => setNewFolderName(e.target.value)} 
+                       placeholder="Enter folder name..."
+                       onKeyDown={e => { if (e.key === 'Enter') handleCreateFolder(); }} 
+                       className="folder-name-input"
+                     />
+                   </div>
+                   <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                     <Button onClick={handleCreateFolder}>Save</Button>
+                     <Button variant="ghost" onClick={() => setIsCreatingFolder(false)}>Cancel</Button>
+                   </div>
+                 </Card>
+              ) : (
+                <Card className="folder-card shadow-none border-dashed btn-create-folder-card" onClick={() => setIsCreatingFolder(true)}>
+                  <Plus size={16} /> New Folder
+                </Card>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* QR Codes Section */}
+      <section className="dashboard-section">
+        {selectedFolderId ? (
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <h2 className="dashboard-section-title">Folder contents</h2>
+             <Button variant="outline" size="sm" leftIcon={<Plus size={16}/>} onClick={() => setIsAddItemsModalOpen(true)}>Add items to folder</Button>
+           </div>
+        ) : (
+           <h2 className="dashboard-section-title">All QR codes</h2>
+        )}
+
+        {/* Filters and Tabs Row */}
+        <div className="dashboard-toolbar">
+          <div className="dashboard-tabs">
+            {tabs.map(tab => (
+              <button 
+                key={tab}
+                className={`dashboard-tab ${activeTab === tab ? 'dashboard-tab-active' : ''}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <div className="toolbar-actions">
+            <Button variant="outline" leftIcon={<Filter size={16} />} size="sm">Filter</Button>
+            
+            <div className="dropdown-wrapper">
+              <Button variant="outline" rightIcon={<ChevronDown size={16} />} size="sm">
+                Sort by: {sortBy}
+              </Button>
+              <div className="dropdown-menu">
+                <button className="dropdown-item" onClick={() => setSortBy('Most recent')}>Most recent</button>
+                <button className="dropdown-item" onClick={() => setSortBy('Name')}>Name</button>
+                <button className="dropdown-item" onClick={() => setSortBy('Scans')}>Scans</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Secondary Toolbar Row OR Bulk Actions Toolbar */}
+        {selectedQrCodes.length > 0 ? (
+          <div className="dashboard-toolbar bulk-actions-toolbar animate-fade-in">
+             <div className="bulk-selection-info">
+               <span className="bulk-count">{selectedQrCodes.length} selected</span>
+               <Button variant="ghost" size="sm" onClick={clearSelection}>Clear</Button>
+             </div>
+             <div className="toolbar-actions">
+               <Button variant="outline" size="sm" leftIcon={<Trash2 size={16} />} onClick={handleBulkDelete}>Delete</Button>
+               <Button variant="outline" size="sm" leftIcon={<Star size={16} />} onClick={handleBulkFavorite}>Favorite</Button>
+               <Button variant="outline" size="sm" leftIcon={<FolderPlus size={16} />} onClick={() => setIsBulkMoveModalOpen(true)}>Move to Folder</Button>
+             </div>
+          </div>
+        ) : (
+          <div className="dashboard-toolbar secondary-toolbar animate-fade-in">
+            <div className="dashboard-search-wrapper">
+              <Search className="search-icon-inline" size={16} />
+              <Input 
+                placeholder="Search..." 
+                className="input-with-icon"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="toolbar-actions">
+              
+              <div className="custom-switch-group">
+                <div 
+                  className="custom-switch" 
+                  onClick={() => setShowVisits(!showVisits)}
+                  style={{ backgroundColor: showVisits ? 'var(--primary-btn-bg)' : 'var(--border-color)' }}
+                >
+                  <div 
+                    className="custom-switch-knob"
+                    style={{ transform: showVisits ? 'translateX(16px)' : 'translateX(0)' }}
+                  ></div>
+                </div>
+                <span className="switch-label">Visits</span>
+              </div>
+
+              <div className="pagination-controls">
+                <span>{currentPage} of {totalPages}</span>
+                <div className="pagination-buttons">
+                  <button 
+                    className="pagination-btn" 
+                    style={{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft size={16}/>
+                  </button>
+                  <button 
+                    className="pagination-btn"
+                    style={{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    <ChevronRight size={16}/>
+                  </button>
+                </div>
+              </div>
+
+              <div className="dropdown-wrapper">
+                <Button variant="outline" size="sm" rightIcon={<ChevronDown size={16} />} className="rows-per-page">
+                  {rowsPerPage}
+                </Button>
+                <div className="dropdown-menu narrow">
+                  {[5, 10, 20].map(n => (
+                    <button key={n} className="dropdown-item" style={{ textAlign: 'center' }} onClick={() => setRowsPerPage(n)}>{n}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="view-toggles">
+                <button 
+                  className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  <List size={16}/>
+                </button>
+                <button 
+                  className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid size={16}/>
+                </button>
+              </div>
+              
+            </div>
+          </div>
+        )}
+
+        {/* Data Display */}
+        {filteredData.length === 0 ? (
+          <Card className="data-table-card">
+             <div className="data-table-empty">
+              {selectedFolderId ? (
+                <>
+                  <Folder size={32} className="empty-icon" />
+                  <span>This folder is empty.</span>
+                  <Button 
+                    variant="outline" 
+                    leftIcon={<Plus size={16} />} 
+                    onClick={() => setIsAddItemsModalOpen(true)}
+                    style={{ marginTop: 'var(--space-2)' }}
+                  >
+                    Add items
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <QrCodeIcon size={32} className="empty-icon" />
+                  <span>No QR codes found matching your criteria</span>
+                </>
+              )}
+            </div>
+          </Card>
+        ) : viewMode === 'list' ? (
+          <Card className="data-table-card">
+            <div className="data-table-header" style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr' : '40px 2fr 1fr 1fr 1fr 1fr' }}>
+              <div className="col-checkbox">
+                <input 
+                  type="checkbox" 
+                  className="custom-checkbox" 
+                  checked={paginatedData.length > 0 && paginatedData.every(qr => selectedQrCodes.includes(qr.id))}
+                  onChange={(e) => handleSelectAll(e.target.checked, paginatedData)}
+                />
+              </div>
+              <div className="col-name" style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                <div style={{ width: '24px' }}></div> {/* Spacer for star */}
+                <div style={{ width: '40px' }}></div> {/* Spacer for icon */}
+                <div>Name</div>
+              </div>
+              <div className="col-type">QR Type</div>
+              <div className="col-created">Created</div>
+              <div className="col-edited">Edited</div>
+              <div className="col-state">State</div>
+              {showVisits && <div className="col-scans">Scans</div>}
+            </div>
+            
+            <div className="data-table-body">
+              {paginatedData.map(qr => (
+                <div key={qr.id} className={`data-table-row ${selectedQrCodes.includes(qr.id) ? 'selected-row' : ''}`} style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr' : '40px 2fr 1fr 1fr 1fr 1fr' }}>
+                  <div className="col-checkbox">
+                    <input 
+                      type="checkbox" 
+                      className="custom-checkbox" 
+                      checked={selectedQrCodes.includes(qr.id)}
+                      onChange={() => toggleSelection(qr.id)}
+                    />
+                  </div>
+                  <div className="col-name qr-name-cell">
+                    <button className="star-btn" onClick={(e) => { e.stopPropagation(); toggleFavorite(qr.id); }}>
+                      <Star size={16} className={qr.isFavorite ? "star-icon" : "star-icon-inactive"} />
+                    </button>
+                    <div className="qr-icon-box">
+                      <QrCodeIcon size={20} />
+                    </div>
+                    <div className="qr-name-info">
+                      <span className="qr-name-title">{qr.name}</span>
+                      <a href={qr.url} className="qr-name-link" target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>{qr.url}</a>
+                    </div>
+                  </div>
+                  <div className="col-type" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{qr.type}</div>
+                  <div className="col-created" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{qr.createdAt}</div>
+                  <div className="col-edited" style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{qr.editedAt}</div>
+                  <div className="col-state">
+                    <Badge variant={qr.state === 'Active' ? 'success' : 'outline'} style={{ fontSize: 'var(--text-xs)' }}>{qr.state}</Badge>
+                  </div>
+                  {showVisits && <div className="col-scans" style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>{qr.scans.toLocaleString()}</div>}
+                </div>
+              ))}
+            </div>
+          </Card>
+        ) : (
+          <div className="data-grid">
+            {paginatedData.map(qr => (
+              <Card key={qr.id} className={`qr-grid-card shadow-sm border-light ${selectedQrCodes.includes(qr.id) ? 'selected-card' : ''}`} style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', cursor: 'pointer' }} onClick={() => toggleSelection(qr.id)}>
+                <div className="qr-grid-card-header">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        className="custom-checkbox" 
+                        style={{ marginTop: '8px' }}
+                        checked={selectedQrCodes.includes(qr.id)}
+                        onChange={() => toggleSelection(qr.id)}
+                      />
+                    </div>
+                    <div className="qr-icon-box" style={{ width: '48px', height: '48px' }}>
+                      <QrCodeIcon size={24} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+                    <button className="star-btn" onClick={(e) => { e.stopPropagation(); toggleFavorite(qr.id); }}>
+                      <Star size={16} className={qr.isFavorite ? "star-icon" : "star-icon-inactive"} />
+                    </button>
+                    <div className="dropdown-wrapper">
+                      <Button variant="ghost" size="icon" style={{color: 'var(--text-muted)'}}><MoreVertical size={16} /></Button>
+                      <div className="dropdown-menu narrow">
+                         {selectedFolderId && <button className="dropdown-item" onClick={(e) => { e.stopPropagation(); handleRemoveQrFromFolder(qr.id); }}>Remove from folder</button>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="qr-grid-title-row">
+                    <h3 className="qr-grid-title">{qr.name}</h3>
+                  </div>
+                  <a href={qr.url} className="qr-name-link" style={{display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>{qr.url}</a>
+                </div>
+                <div className="qr-grid-footer">
+                  <Badge variant={qr.state === 'Active' ? 'success' : 'outline'}>{qr.state}</Badge>
+                  {showVisits && <span style={{fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--text-muted)'}}>{qr.scans.toLocaleString()} Scans</span>}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+      </section>
+
+      {/* Add Items Modal (Existing) */}
+      {isAddItemsModalOpen && (
+        <div className="modal-backdrop">
+          <Card className="modal-content">
+            <div className="modal-header">
+              <h2>Add QR Codes to {selectedFolder?.name}</h2>
+              <Button variant="ghost" size="icon" onClick={() => setIsAddItemsModalOpen(false)}>
+                <X size={20} />
+              </Button>
+            </div>
+            <div className="modal-body">
+              {unassignedQrCodes.length === 0 ? (
+                <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  No unassigned QR codes available to add.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {unassignedQrCodes.map(qr => (
+                    <div key={qr.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                         <div className="qr-icon-box" style={{ width: '32px', height: '32px' }}><QrCodeIcon size={16}/></div>
+                         <span style={{ fontWeight: 500 }}>{qr.name}</span>
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => handleAddQrToFolder(qr.id)}>Add to folder</Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="modal-footer" style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+              <Button onClick={() => setIsAddItemsModalOpen(false)}>Done</Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Bulk Move Modal */}
+      {isBulkMoveModalOpen && (
+        <div className="modal-backdrop">
+          <Card className="modal-content">
+            <div className="modal-header">
+              <h2>Move to Folder</h2>
+              <Button variant="ghost" size="icon" onClick={() => setIsBulkMoveModalOpen(false)}>
+                <X size={20} />
+              </Button>
+            </div>
+            <div className="modal-body">
+              {folders.length === 0 ? (
+                <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  You don't have any folders yet.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {folders.map(f => (
+                    <div key={f.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px', cursor: 'pointer' }} className="hover-bg-secondary" onClick={() => handleBulkMove(f.id)}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                         <Folder size={20} style={{ color: 'var(--text-muted)' }} />
+                         <span style={{ fontWeight: 500 }}>{f.name}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Option to remove from folder if currently in one */}
+                  {selectedFolderId && (
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px', cursor: 'pointer' }} className="hover-bg-secondary" onClick={() => handleBulkMove(undefined as any)}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                         <X size={20} style={{ color: 'var(--text-muted)' }} />
+                         <span style={{ fontWeight: 500 }}>Remove from folder</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
+
+    </div>
+  );
+};
