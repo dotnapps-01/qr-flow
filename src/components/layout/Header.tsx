@@ -14,6 +14,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         <Button variant="ghost" size="icon" className="mobile-menu-btn" onClick={onMenuClick}>
           <Menu className="header-icon" />
         </Button>
+        
+        <div className="mobile-header-logo" style={{ alignItems: 'center', gap: '8px', marginRight: 'var(--space-4)' }}>
+          <img src="/logo.png" alt="QRFLOW Logo" style={{ width: '24px', height: '24px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontWeight: 800, fontSize: '14px', lineHeight: 1 }}>QRFLOW</span>
+            <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: 500 }}>By Dotn Apps</span>
+          </div>
+        </div>
+
         <div className="search-bar">
           <Search className="search-icon" />
           <input type="text" placeholder="Search anything..." className="search-input" />

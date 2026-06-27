@@ -129,10 +129,17 @@
   display: none !important;
 }
 
+.mobile-header-logo {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
   .mobile-menu-btn {
     display: inline-flex !important;
     margin-right: var(--space-2);
+  }
+  .mobile-header-logo {
+    display: flex !important;
   }
   .search-bar {
     width: auto;
