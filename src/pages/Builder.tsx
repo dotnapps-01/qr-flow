@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import QRCodeStyling from 'qr-code-styling';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -568,8 +569,8 @@ export const Builder: React.FC = () => {
       )}
 
       {/* Inline Auth Modal */}
-      {isLoginModalOpen && (
-        <div className="modal-backdrop" style={{ zIndex: 100 }}>
+      {isLoginModalOpen && createPortal(
+        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
           <Card className="modal-content" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
               <h2>Account Required</h2>
@@ -606,12 +607,13 @@ export const Builder: React.FC = () => {
               </div>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Success Modal */}
-      {showSuccessModal && (
-        <div className="modal-backdrop" style={{ zIndex: 100 }}>
+      {showSuccessModal && createPortal(
+        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
           <Card className="modal-content" style={{ maxWidth: '340px', padding: 0, overflow: 'hidden' }}>
             <div style={{ height: '4px', width: '100%', background: 'linear-gradient(to right, #22c55e, #10b981)' }}></div>
             
@@ -658,7 +660,8 @@ export const Builder: React.FC = () => {
               </div>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

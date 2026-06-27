@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
@@ -23,7 +24,7 @@ export const QrDetailsDrawer: React.FC<QrDetailsDrawerProps> = ({ qr, isOpen, on
     alert('Link copied to clipboard!');
   };
 
-  return (
+  return createPortal(
     <>
       <div className={`drawer-backdrop ${isOpen ? 'open' : ''}`} onClick={onClose} />
       <div className={`drawer-panel ${isOpen ? 'open' : ''}`}>
@@ -125,6 +126,7 @@ export const QrDetailsDrawer: React.FC<QrDetailsDrawerProps> = ({ qr, isOpen, on
           )}
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 };

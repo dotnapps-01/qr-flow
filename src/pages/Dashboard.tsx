@@ -21,6 +21,7 @@ export interface QrCode {
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { createPortal } from 'react-dom';
 import { 
   Plus, 
   Search, 
@@ -820,7 +821,7 @@ export const Dashboard: React.FC = () => {
       </section>
 
       {/* Add Items Modal (Existing) */}
-      {isAddItemsModalOpen && (
+      {isAddItemsModalOpen && createPortal(
         <div className="modal-backdrop">
           <Card className="modal-content">
             <div className="modal-header">
@@ -852,11 +853,12 @@ export const Dashboard: React.FC = () => {
               <Button onClick={() => setIsAddItemsModalOpen(false)}>Done</Button>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Bulk Move Modal */}
-      {isBulkMoveModalOpen && (
+      {isBulkMoveModalOpen && createPortal(
         <div className="modal-backdrop">
           <Card className="modal-content">
             <div className="modal-header">
@@ -897,11 +899,12 @@ export const Dashboard: React.FC = () => {
               <Button onClick={() => handleBulkMove(folders.find(f => f.name === folderSearch)?.id)}>Move</Button>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Rename QR Modal */}
-      {renameQrId && (
+      {renameQrId && createPortal(
         <div className="modal-backdrop">
           <Card className="modal-content" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
@@ -924,11 +927,12 @@ export const Dashboard: React.FC = () => {
               <Button onClick={() => handleRenameQr(renameQrId)}>Save Name</Button>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* View QR Modal */}
-      {viewQrId && (
+      {viewQrId && createPortal(
         <div className="modal-backdrop">
           <Card className="modal-content" style={{ maxWidth: '400px', padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)' }}>
@@ -968,7 +972,8 @@ export const Dashboard: React.FC = () => {
               </Button>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* QR Details Drawer */}
