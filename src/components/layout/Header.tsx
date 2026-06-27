@@ -2,14 +2,17 @@ import React from 'react';
 import { Search, Bell, Command, ChevronDown, Menu } from 'lucide-react';
 import './Header.css';
 import { Button } from '../ui/Button';
-import { useWorkspace } from '../../contexts/WorkspaceContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export interface HeaderProps {
   onMenuClick: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
-  const { workspaceName } = useWorkspace();
+  const { user } = useAuth();
+  
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'Guest';
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <header className="header">
@@ -41,13 +44,23 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <Bell className="header-icon" />
         </Button>
         
-        <div className="workspace-switcher">
-          <div className="workspace-avatar" style={{ textTransform: 'uppercase' }}>
-            {workspaceName.charAt(0) || 'W'}
+        {user ? (
+          <div className="workspace-switcher">
+            {user.photoURL ? (
+              <img src={user.photoURL} alt={displayName} style={{ width: '24px', height: '24px', borderRadius: '50%' }} />
+            ) : (
+              <div className="workspace-avatar" style={{ textTransform: 'uppercase' }}>
+                {initial}
+              </div>
+            )}
+            <span className="workspace-name">{displayName}</span>
+            <ChevronDown className="workspace-chevron" />
           </div>
-          <span className="workspace-name">{workspaceName}</span>
-          <ChevronDown className="workspace-chevron" />
-        </div>
+        ) : (
+          <div className="workspace-switcher" style={{ cursor: 'default' }}>
+             <span className="workspace-name">Guest</span>
+          </div>
+        )}
       </div>
     </header>
   );

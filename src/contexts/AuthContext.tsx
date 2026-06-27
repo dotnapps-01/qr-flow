@@ -12,6 +12,8 @@ import { auth, hasValidFirebaseConfig } from '../lib/firebase';
 export interface User {
   id: string;
   email: string | null;
+  displayName?: string | null;
+  photoURL?: string | null;
 }
 
 interface AuthContextType {
@@ -33,7 +35,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (hasValidFirebaseConfig && auth) {
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         if (firebaseUser) {
-          setUser({ id: firebaseUser.uid, email: firebaseUser.email });
+          setUser({ 
+            id: firebaseUser.uid, 
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL
+          });
         } else {
           setUser(null);
         }
