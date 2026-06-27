@@ -12,6 +12,7 @@ import {
   QrCode
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useAuth } from '../../contexts/AuthContext';
 import './Sidebar.css';
 
 export interface SidebarProps {
@@ -33,6 +34,8 @@ const bottomNavItems = [
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { user, logout } = useAuth();
+  
   return (
     <aside className={clsx('sidebar', { 'open': isOpen })}>
       <div className="sidebar-header">
@@ -86,6 +89,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             lineHeight: '1.4' 
           }}>
             This app is free for now<br/>by <strong style={{ color: 'var(--text-primary)' }}>Dotn Apps</strong>
+            
+            <div style={{ marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+              {user ? (
+                <button 
+                  onClick={async () => {
+                    await logout();
+                  }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--danger)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', width: '100%' }}
+                >
+                  Log Out
+                </button>
+              ) : (
+                <NavLink 
+                  to="/login"
+                  onClick={onClose}
+                  style={{ display: 'block', background: 'transparent', border: 'none', color: 'var(--primary-btn-bg)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}
+                >
+                  Log In
+                </NavLink>
+              )}
+            </div>
           </div>
         </nav>
       </div>
