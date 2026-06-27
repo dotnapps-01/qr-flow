@@ -142,16 +142,19 @@
     display: flex !important;
   }
   .search-bar {
-    width: auto;
-    flex: 1;
-    min-width: 120px;
-    margin-right: var(--space-2);
+    display: none !important;
   }
   .command-shortcut {
     display: none;
   }
   .workspace-name {
     display: none;
+  }
+  .workspace-chevron {
+    display: none;
+  }
+  .workspace-switcher {
+    padding: 0;
   }
   .header {
     padding: 0 var(--space-2);
