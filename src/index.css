@@ -149,6 +149,12 @@ button {
   padding: 0 var(--space-5);
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-4);
+  }
+}
+
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
 .items-center { align-items: center; }
