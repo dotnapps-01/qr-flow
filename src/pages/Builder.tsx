@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import QRCodeStyling from 'qr-code-styling';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { FaWhatsapp, FaYoutube, FaInstagram, FaFacebook, FaTelegramPlane } from 'react-icons/fa';
 import { QrForms } from '../components/builder/QrForms';
 import { Button } from '../components/ui/Button';
@@ -72,7 +76,10 @@ export const Builder: React.FC = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [qrData, setQrData] = useState<any>({});
+  const [dynamicId, setDynamicId] = useState<string>('');
   const qrRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [qrCode] = useState(() => new QRCodeStyling({
     width: 200,
@@ -106,6 +113,10 @@ export const Builder: React.FC = () => {
 
   const generateQrString = () => {
     if (!qrData || Object.keys(qrData).length === 0) return 'https://dotnapps.com';
+    
+    if (qrCategory === 'dynamic' && dynamicId) {
+      return `${window.location.origin}/q/${dynamicId}`;
+    }
     
     switch (selectedType) {
       case 'url':
@@ -171,6 +182,35 @@ export const Builder: React.FC = () => {
       }
     });
   }, [qrCode, qrString, qrDesign]);
+
+  const handleDownload = async (extension: 'png' | 'jpeg' | 'svg') => {
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+    if (qrCategory === 'dynamic') {
+      try {
+        if (db) {
+          await setDoc(doc(db, 'qr_codes', dynamicId), {
+            userId: user.id,
+            type: selectedType,
+            data: qrData,
+            createdAt: new Date().toISOString()
+          });
+        } else {
+          // Mock saving to localStorage for demo
+          const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
+          saved[dynamicId] = { type: selectedType, data: qrData };
+          localStorage.setItem('demo_qrs', JSON.stringify(saved));
+        }
+      } catch (err) {
+        console.error("Failed to save QR code data", err);
+        alert("Failed to save dynamic QR code. Please try again.");
+        return;
+      }
+    }
+    qrCode.download({ name: 'qr-flow', extension });
+  };
 
   return (
     <div className="builder-layout animate-fade-in">
@@ -277,6 +317,9 @@ export const Builder: React.FC = () => {
                         className={`qr-type-card ${selectedType === type.id ? 'selected' : ''}`}
                         onClick={() => {
                           setSelectedType(type.id);
+                          if (qrCategory === 'dynamic' && !dynamicId) {
+                            setDynamicId(Math.random().toString(36).substring(2, 8));
+                          }
                           setActiveStep(2);
                         }}
                       >
@@ -345,20 +388,20 @@ export const Builder: React.FC = () => {
               <div style={{ marginTop: 'var(--space-6)', display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                 <Button 
                   variant="outline" 
-                  onClick={() => qrCode.download({ name: 'qr-flow', extension: 'svg' })}
+                  onClick={() => handleDownload('svg')}
                   leftIcon={<Download size={16} />}
                 >
                   SVG
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => qrCode.download({ name: 'qr-flow', extension: 'jpeg' })}
+                  onClick={() => handleDownload('jpeg')}
                   leftIcon={<Download size={16} />}
                 >
                   JPEG
                 </Button>
                 <Button 
-                  onClick={() => qrCode.download({ name: 'qr-flow', extension: 'png' })}
+                  onClick={() => handleDownload('png')}
                   leftIcon={<Download size={16} />}
                 >
                   Download PNG
