@@ -136,10 +136,17 @@
 @media (max-width: 768px) {
   .mobile-menu-btn {
     display: inline-flex !important;
-    margin-right: var(--space-2);
+    margin-right: 4px;
   }
   .mobile-header-logo {
     display: flex !important;
+  }
+  .mobile-header-logo img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .mobile-header-logo span:first-child {
+    font-size: 16px !important;
   }
   .search-bar {
     display: none !important;
@@ -156,10 +163,22 @@
   .workspace-switcher {
     padding: 0;
   }
+  .workspace-avatar, .workspace-switcher img {
+    width: 32px !important;
+    height: 32px !important;
+  }
   .header {
-    padding: 0 var(--space-2);
+    padding: 0 var(--space-4);
   }
   .header-right {
-    gap: var(--space-2);
+    gap: 8px;
+  }
+  .header-action-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .mobile-menu-btn {
+    width: 32px;
+    height: 32px;
   }
 }
