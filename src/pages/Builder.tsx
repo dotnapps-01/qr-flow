@@ -185,10 +185,10 @@ export const Builder: React.FC = () => {
     });
   }, [qrCode, qrString, qrDesign]);
 
-  const handleDownload = async (extension: 'png' | 'jpeg' | 'svg') => {
+  const handleSave = async (redirect: boolean = false) => {
     if (!user) {
       setIsLoginModalOpen(true);
-      return;
+      return false;
     }
     if (qrCategory === 'dynamic') {
       try {
@@ -211,13 +211,34 @@ export const Builder: React.FC = () => {
           };
           localStorage.setItem('demo_qrs', JSON.stringify(saved));
         }
+        if (redirect) {
+           navigate('/projects');
+        }
+        return true;
       } catch (err) {
         console.error("Failed to save QR code data", err);
         alert("Failed to save dynamic QR code. Please try again.");
-        return;
+        return false;
       }
     }
-    qrCode.download({ name: 'qr-flow', extension });
+    return true; // Static codes don't need saving to DB
+  };
+
+  const handleDiscard = () => {
+    if (window.confirm("Are you sure you want to discard this QR code? All progress will be lost.")) {
+      setQrCategory(null);
+      setActiveStep(1);
+      setSelectedType(null);
+      setQrData({});
+      setDynamicId('');
+    }
+  };
+
+  const handleDownload = async (extension: 'png' | 'jpeg' | 'svg') => {
+    const saved = await handleSave(false);
+    if (saved) {
+      qrCode.download({ name: 'qr-flow', extension });
+    }
   };
 
   return (
@@ -393,27 +414,31 @@ export const Builder: React.FC = () => {
                  <QrDesign design={qrDesign} onChange={setQrDesign} />
               </div>
               
-              <div style={{ marginTop: 'var(--space-6)', display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleDownload('svg')}
-                  leftIcon={<Download size={16} />}
-                >
-                  SVG
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleDownload('jpeg')}
-                  leftIcon={<Download size={16} />}
-                >
-                  JPEG
-                </Button>
-                <Button 
-                  onClick={() => handleDownload('png')}
-                  leftIcon={<Download size={16} />}
-                >
-                  Download PNG
-                </Button>
+              <div style={{ marginTop: 'var(--space-8)', paddingTop: 'var(--space-6)', borderTop: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <Button variant="ghost" style={{ color: 'var(--danger)' }} onClick={handleDiscard}>
+                    Discard
+                  </Button>
+                  
+                  <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleSave(true)}
+                    >
+                      Save to Dashboard
+                    </Button>
+                    <div className="dropdown-wrapper">
+                      <Button leftIcon={<Download size={16} />} rightIcon={<ChevronDown size={16} />}>
+                        Download
+                      </Button>
+                      <div className="dropdown-menu">
+                        <button className="dropdown-item" onClick={() => handleDownload('png')}>PNG Format</button>
+                        <button className="dropdown-item" onClick={() => handleDownload('jpeg')}>JPEG Format</button>
+                        <button className="dropdown-item" onClick={() => handleDownload('svg')}>SVG Format (Vector)</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
