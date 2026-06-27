@@ -11,6 +11,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { WorkspaceProvider } from './contexts/WorkspaceContext';
 import { UsersPage } from './pages/Users';
 
+import { Overview } from './pages/Overview';
+
 function App() {
   return (
     <AuthProvider>
@@ -24,7 +26,7 @@ function App() {
           <Route path="*" element={
             <AppLayout>
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={<Overview />} />
                 <Route path="/builder" element={<Builder />} />
                 <Route path="/projects" element={<Dashboard />} />
                 <Route path="/templates" element={<div className="dashboard-container"><h1 className="text-display">Templates</h1><p style={{marginTop: '1rem', color: 'var(--text-muted)'}}>Coming Soon.</p></div>} />
