@@ -289,6 +289,7 @@
   .bento-chart {
     grid-column: span 2;
     grid-row: span 2;
+    order: 1;
   }
   
   .bento-kpi-scans {
@@ -296,6 +297,7 @@
     grid-row: span 1;
     flex-direction: row;
     align-items: center;
+    order: 2;
   }
   
   .bento-kpi-scans > div:first-child {
@@ -312,6 +314,12 @@
   .bento-kpi-total {
     grid-column: span 1;
     grid-row: span 1;
+    order: 3;
+    padding: var(--space-3);
+  }
+  
+  .bento-kpi-total .bento-kpi-header {
+    gap: 8px;
   }
 
   .bento-kpi-active {
@@ -321,6 +329,8 @@
     justify-content: center;
     align-items: center;
     text-align: center;
+    order: 4;
+    padding: var(--space-3);
   }
   
   .bento-kpi-active .bento-kpi-value {
@@ -330,9 +340,14 @@
     font-size: 28px;
   }
 
+  .bento-kpi-label {
+    font-size: 11px;
+  }
+
   .bento-recent {
     grid-column: span 2;
     grid-row: span 2;
+    order: 5;
   }
 
   .overview-header {
