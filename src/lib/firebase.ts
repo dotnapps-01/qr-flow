@@ -10,7 +10,8 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "dummy-project-id",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "dummy-storage-bucket",
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "dummy-sender-id",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "dummy-app-id"
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "dummy-app-id",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ""
 };
 
 // Initialize Firebase only if we have real credentials, otherwise we'll mock it for the demo

@@ -2,12 +2,15 @@ import React from 'react';
 import { Search, Bell, Command, ChevronDown, Menu } from 'lucide-react';
 import './Header.css';
 import { Button } from '../ui/Button';
+import { useWorkspace } from '../../contexts/WorkspaceContext';
 
 export interface HeaderProps {
   onMenuClick: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+  const { workspaceName } = useWorkspace();
+
   return (
     <header className="header">
       <div className="header-left">
@@ -39,8 +42,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </Button>
         
         <div className="workspace-switcher">
-          <div className="workspace-avatar">W</div>
-          <span className="workspace-name">My Workspace</span>
+          <div className="workspace-avatar" style={{ textTransform: 'uppercase' }}>
+            {workspaceName.charAt(0) || 'W'}
+          </div>
+          <span className="workspace-name">{workspaceName}</span>
           <ChevronDown className="workspace-chevron" />
         </div>
       </div>

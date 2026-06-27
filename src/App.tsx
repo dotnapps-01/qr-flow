@@ -8,11 +8,14 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { RedirectHandler } from './pages/RedirectHandler';
 import { AuthProvider } from './contexts/AuthContext';
+import { WorkspaceProvider } from './contexts/WorkspaceContext';
+import { UsersPage } from './pages/Users';
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <WorkspaceProvider>
+        <BrowserRouter>
         <Routes>
           {/* Standalone Route for handling QR scans */}
           <Route path="/q/:id" element={<RedirectHandler />} />
@@ -25,13 +28,15 @@ function App() {
                 <Route path="/builder" element={<Builder />} />
                 <Route path="/projects" element={<div className="text-display">Projects Component</div>} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/users" element={<UsersPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
               </Routes>
             </AppLayout>
           } />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </WorkspaceProvider>
     </AuthProvider>
   );
 }

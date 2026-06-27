@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Save } from 'lucide-react';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 
 export const Settings: React.FC = () => {
+  const { workspaceName, updateWorkspaceName } = useWorkspace();
+  const [localName, setLocalName] = useState(workspaceName);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setLocalName(workspaceName);
+  }, [workspaceName]);
+
+  const handleSave = async () => {
+    if (localName !== workspaceName) {
+      setIsSaving(true);
+      await updateWorkspaceName(localName);
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-8 animate-fade-in max-w-[800px]">
       <div>
@@ -20,21 +37,29 @@ export const Settings: React.FC = () => {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="flex items-center gap-4 mb-2">
-              <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', backgroundColor: 'var(--text-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 600 }}>
-                W
+              <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', backgroundColor: 'var(--text-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 600, textTransform: 'uppercase' }}>
+                {workspaceName.charAt(0) || 'W'}
               </div>
               <Button variant="outline">Upload Logo</Button>
             </div>
             
             <div>
               <label className="text-sm font-medium mb-1 block">Workspace Name</label>
-              <Input defaultValue="My Workspace" placeholder="e.g. Acme Corp" />
+              <Input 
+                value={localName} 
+                onChange={(e) => setLocalName(e.target.value)}
+                placeholder="e.g. Acme Corp" 
+              />
             </div>
             
             <div>
               <label className="text-sm font-medium mb-1 block">Workspace URL</label>
               <div className="flex gap-2">
-                <Input defaultValue="my-workspace" />
+                <Input 
+                  value={localName.toLowerCase().replace(/[^a-z0-9]/g, '-')} 
+                  readOnly
+                  disabled
+                />
                 <div className="flex items-center px-4 bg-secondary border border-border-color rounded-lg text-muted text-sm">
                   .qrflow.com
                 </div>
@@ -42,7 +67,13 @@ export const Settings: React.FC = () => {
             </div>
           </CardContent>
           <CardFooter className="justify-end">
-            <Button leftIcon={<Save size={16} />}>Save Changes</Button>
+            <Button 
+              leftIcon={<Save size={16} />} 
+              onClick={handleSave}
+              disabled={isSaving || localName === workspaceName}
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
           </CardFooter>
         </Card>
 
