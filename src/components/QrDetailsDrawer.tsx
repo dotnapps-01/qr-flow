@@ -5,7 +5,7 @@ import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
 import { QRCodeSVG } from 'qrcode.react';
 import { X, Edit2, Download, BarChart2, Calendar, Link as LinkIcon, ExternalLink, QrCode as QrCodeIcon, Copy } from 'lucide-react';
-import { QrCode } from '../pages/Dashboard';
+import type { QrCode } from '../pages/Dashboard';
 import './QrDetailsDrawer.css';
 
 interface QrDetailsDrawerProps {
