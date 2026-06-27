@@ -49,8 +49,6 @@ interface QrType {
 
 const qrTypes: QrType[] = [
   { id: 'url', name: 'URL / Link', desc: 'Open a URL', icon: Globe },
-  { id: 'pdf', name: 'PDF', desc: 'Show a PDF', icon: FileText },
-  { id: 'image', name: 'Image', desc: 'Show an image gallery', icon: ImageIcon },
   { id: 'apps', name: 'Play Market / App Store', desc: 'Redirect to an app store', icon: Smartphone },
   { id: 'text', name: 'Text', desc: 'Display plain text', icon: AlignLeft },
   { id: 'whatsapp', name: 'WhatsApp', desc: 'Send a WhatsApp message', icon: FaWhatsapp },
@@ -59,13 +57,11 @@ const qrTypes: QrType[] = [
   { id: 'vcard', name: 'vCard', desc: 'Share contact details', icon: Users },
   { id: 'map', name: 'Map', desc: 'Show a location on a map', icon: MapPin },
   { id: 'wifi', name: 'Wi-Fi', desc: 'Connect to a Wi-Fi network', icon: Wifi },
-  { id: 'audio', name: 'Audio', desc: 'Play an audio file', icon: Music },
   { id: 'facebook', name: 'Facebook', desc: 'Open a Facebook page', icon: FaFacebook },
   { id: 'telegram', name: 'Telegram', desc: 'Open a Telegram channel', icon: FaTelegramPlane },
   { id: 'email', name: 'E-mail', desc: 'Send an email', icon: Mail },
   { id: 'booking', name: 'Booking', desc: 'Link to a booking page', icon: CalendarCheck },
   { id: 'phone', name: 'Phone Call', desc: 'Initiate a phone call', icon: Phone },
-  { id: 'pptx', name: 'PPTX', desc: 'Share a PowerPoint presentation', icon: Presentation },
   { id: 'custom-url', name: 'Custom URL', desc: 'Create a custom URL', icon: Link2 },
   { id: 'sms', name: 'SMS', desc: 'Send a text message', icon: MessageSquare },
 ];
@@ -125,6 +121,10 @@ export const Builder: React.FC = () => {
       case 'url':
       case 'custom-url':
       case 'booking':
+      case 'youtube':
+      case 'instagram':
+      case 'facebook':
+      case 'telegram':
         return qrData.url || 'https://dotnapps.com';
       case 'text':
         return qrData.text || 'Hello World';
@@ -142,6 +142,8 @@ export const Builder: React.FC = () => {
         return `BEGIN:VCARD\nVERSION:3.0\nN:${qrData.lastName || ''};${qrData.firstName || ''}\nFN:${qrData.firstName || ''} ${qrData.lastName || ''}\nORG:${qrData.company || ''}\nTEL:${qrData.countryCode || '+91'}${qrData.phone || ''}\nEMAIL:${qrData.email || ''}\nEND:VCARD`;
       case 'map':
         return `geo:${qrData.lat || '0'},${qrData.lng || '0'}?q=${encodeURIComponent(qrData.address || '')}`;
+      case 'apps':
+        return qrData.ios || qrData.android || 'https://dotnapps.com';
       default:
         return JSON.stringify(qrData);
     }
