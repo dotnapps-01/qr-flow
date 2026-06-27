@@ -529,35 +529,48 @@ export const Builder: React.FC = () => {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="modal-backdrop" style={{ zIndex: 100 }}>
-          <Card className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
-            <div className="modal-body" style={{ padding: '32px 24px' }}>
-              <div style={{ width: '64px', height: '64px', backgroundColor: 'rgba(34, 197, 94, 0.1)', color: 'var(--success)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <Card className="modal-content" style={{ maxWidth: '340px', padding: 0, overflow: 'hidden' }}>
+            <div style={{ height: '4px', width: '100%', background: 'linear-gradient(to right, #22c55e, #10b981)' }}></div>
+            
+            <div style={{ padding: '32px 24px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <div style={{ 
+                width: '56px', height: '56px', 
+                backgroundColor: 'rgba(34, 197, 94, 0.1)', 
+                color: 'var(--success)', 
+                borderRadius: '50%', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                marginBottom: '20px',
+                boxShadow: '0 0 0 8px rgba(34, 197, 94, 0.05)'
+              }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
               </div>
-              <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px' }}>Saved Successfully!</h2>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>
-                Your dynamic QR code has been securely saved to your account. You can track scans and manage it from your dashboard.
+              
+              <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                Saved Successfully!
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '28px', lineHeight: '1.5' }}>
+                Your QR code is securely saved. You can track scans and manage it from your dashboard.
               </p>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', width: '100%', gap: '12px' }}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowSuccessModal(false)} 
+                  style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
+                >
+                  Close
+                </Button>
                 <Button 
                   onClick={() => {
                     setShowSuccessModal(false);
                     navigate('/');
                   }} 
-                  style={{ width: '100%' }}
+                  style={{ flex: 1, backgroundColor: 'var(--success)', borderColor: 'var(--success)', borderRadius: 'var(--radius-md)' }}
                 >
-                  Go to Dashboard
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowSuccessModal(false)} 
-                  style={{ width: '100%' }}
-                >
-                  Keep Editing
+                  Dashboard
                 </Button>
               </div>
             </div>
