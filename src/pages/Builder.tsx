@@ -200,7 +200,13 @@ export const Builder: React.FC = () => {
         } else {
           // Mock saving to localStorage for demo
           const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
-          saved[dynamicId] = { type: selectedType, data: qrData };
+          saved[dynamicId] = { 
+            type: selectedType, 
+            data: qrData, 
+            userId: user.id, 
+            createdAt: new Date().toISOString(),
+            scans: 0 
+          };
           localStorage.setItem('demo_qrs', JSON.stringify(saved));
         }
       } catch (err) {

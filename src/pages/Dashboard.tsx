@@ -5,6 +5,9 @@ import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { mockQrCodes, type QrCode } from '../data/mockQrCodes';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus, 
   Search, 
@@ -31,9 +34,10 @@ type ViewMode = 'list' | 'grid';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Core Data State
-  const [qrCodesData, setQrCodesData] = useState<QrCode[]>(mockQrCodes);
+  const [qrCodesData, setQrCodesData] = useState<QrCode[]>([]);
   const [folders, setFolders] = useState<{id: string, name: string}[]>([]);
   
   // Navigation State
@@ -185,6 +189,63 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
   }, [totalPages, currentPage]);
+
+  useEffect(() => {
+    const fetchQrCodes = async () => {
+      if (!user) {
+        setQrCodesData(mockQrCodes); // Show mock data if logged out for preview
+        return;
+      }
+      
+      let fetchedData: QrCode[] = [];
+
+      try {
+        if (db) {
+          // Fetch from live Firestore
+          const q = query(collection(db, 'qr_codes'), where('userId', '==', user.id));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            fetchedData.push({
+              id: doc.id,
+              name: `${data.type} QR Code`,
+              url: `${window.location.origin}/q/${doc.id}`,
+              type: 'Dynamic',
+              scans: data.scans || 0,
+              state: 'Active',
+              createdAt: new Date(data.createdAt).toLocaleDateString(),
+              editedAt: new Date(data.createdAt).toLocaleDateString(),
+              isFavorite: false,
+            });
+          });
+        } else {
+          // Fetch from local demo storage
+          const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
+          Object.keys(saved).forEach(id => {
+            const data = saved[id];
+            if (data.userId === user.id) {
+               fetchedData.push({
+                  id: id,
+                  name: `${data.type.charAt(0).toUpperCase() + data.type.slice(1)} QR Code`,
+                  url: `${window.location.origin}/q/${id}`,
+                  type: 'Dynamic',
+                  scans: data.scans || 0,
+                  state: 'Active',
+                  createdAt: data.createdAt ? new Date(data.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+                  editedAt: data.createdAt ? new Date(data.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+                  isFavorite: false,
+               });
+            }
+          });
+        }
+        setQrCodesData(fetchedData);
+      } catch (err) {
+        console.error("Failed to fetch QR codes:", err);
+      }
+    };
+
+    fetchQrCodes();
+  }, [user]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * rowsPerPage;
