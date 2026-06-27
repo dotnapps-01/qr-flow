@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Save, User, Bell, CreditCard, Shield, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Save, User, Bell, CreditCard, Shield, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import clsx from 'clsx';
+import './Settings.css';
 
 export const Settings: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateProfileData } = useAuth();
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
   const initial = displayName.charAt(0).toUpperCase();
 
@@ -15,14 +15,51 @@ export const Settings: React.FC = () => {
   const [localName, setLocalName] = useState(displayName);
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await updateProfileData({ displayName: localName });
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-    }, 800);
+    } catch (error) {
+      console.error('Failed to update profile', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check size (max 800kb as per UI)
+    if (file.size > 800 * 1024) {
+      alert("Image is too large. Max size is 800KB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      setIsSaving(true);
+      try {
+        await updateProfileData({ photoURL: base64 });
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      } catch (error) {
+        console.error('Failed to update avatar', error);
+      } finally {
+        setIsSaving(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const tabs = [
@@ -33,40 +70,20 @@ export const Settings: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in max-w-[1000px]">
-      <div>
+    <div className="settings-container animate-fade-in">
+      <div className="settings-header">
         <h1 className="text-display">Settings</h1>
-        <p className="text-body text-muted mt-1">Manage your account preferences and personal profile.</p>
+        <p className="settings-subtitle">Manage your account preferences and personal profile.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 'var(--space-8)' }}>
+      <div className="settings-layout">
         {/* Settings Sidebar */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+        <div className="settings-sidebar">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-3)',
-                padding: 'var(--space-3) var(--space-4)',
-                borderRadius: 'var(--radius-md)',
-                border: 'none',
-                background: activeTab === tab.id ? 'var(--bg-secondary)' : 'transparent',
-                color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
-                fontSize: 'var(--text-sm)',
-                fontWeight: activeTab === tab.id ? 600 : 500,
-                cursor: 'pointer',
-                transition: 'all var(--transition-fast)',
-                textAlign: 'left'
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== tab.id) e.currentTarget.style.background = 'var(--bg-secondary)';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== tab.id) e.currentTarget.style.background = 'transparent';
-              }}
+              className={`settings-tab ${activeTab === tab.id ? 'active' : ''}`}
             >
               <tab.icon size={18} />
               {tab.label}
@@ -75,53 +92,62 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Settings Content */}
-        <div className="flex flex-col gap-6">
+        <div className="settings-content">
           {activeTab === 'profile' && (
             <Card>
               <CardHeader>
                 <CardTitle>Public Profile</CardTitle>
                 <CardDescription>Update your personal information and avatar.</CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col gap-6">
-                <div className="flex items-center gap-6 mb-2">
+              <CardContent className="settings-content">
+                <div className="avatar-section">
                   {user?.photoURL ? (
-                    <img src={user.photoURL} alt={displayName} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-light)' }} />
+                    <img src={user.photoURL} alt={displayName} className="avatar-preview" />
                   ) : (
-                    <div style={{ width: 80, height: 80, borderRadius: '50%', backgroundColor: 'var(--primary-btn-bg)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 600, textTransform: 'uppercase' }}>
+                    <div className="avatar-placeholder">
                       {initial}
                     </div>
                   )}
-                  <div className="flex flex-col gap-2">
-                    <Button variant="outline">Change Avatar</Button>
+                  <div className="avatar-actions">
+                    <input 
+                      type="file" 
+                      accept="image/png, image/jpeg, image/gif" 
+                      ref={fileInputRef} 
+                      style={{ display: 'none' }} 
+                      onChange={handleAvatarChange}
+                    />
+                    <Button variant="outline" onClick={triggerFileInput} disabled={isSaving}>
+                      Change Avatar
+                    </Button>
                     <p className="text-xs text-muted">JPG, GIF or PNG. Max size of 800K</p>
                   </div>
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Full Name</label>
+                <div className="settings-form-grid">
+                  <div className="settings-form-group">
+                    <label className="settings-form-label">Full Name</label>
                     <Input 
                       value={localName} 
                       onChange={(e) => setLocalName(e.target.value)}
                       placeholder="e.g. Jane Doe" 
                     />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Email Address</label>
+                  <div className="settings-form-group">
+                    <label className="settings-form-label">Email Address</label>
                     <Input 
                       value={user?.email || ''} 
                       disabled
                       readOnly
                     />
-                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Email cannot be changed if linked to Google</p>
+                    <p className="text-xs text-muted" style={{ marginTop: '4px' }}>Email cannot be changed if linked to Google</p>
                   </div>
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Bio</label>
+                <div className="settings-form-group">
+                  <label className="settings-form-label">Bio</label>
                   <textarea 
                     placeholder="A short bio about yourself" 
-                    style={{ width: '100%', minHeight: '100px', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical' }}
+                    className="settings-textarea"
                   />
                 </div>
               </CardContent>
@@ -149,29 +175,31 @@ export const Settings: React.FC = () => {
                 <CardTitle>Email Notifications</CardTitle>
                 <CardDescription>Manage when and how often you hear from us.</CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col gap-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-sm">Product Updates</p>
-                    <p className="text-sm text-muted">Receive news about new features and product updates.</p>
+              <CardContent>
+                <div className="preferences-list">
+                  <div className="preference-item">
+                    <div className="preference-info">
+                      <p>Product Updates</p>
+                      <span>Receive news about new features and product updates.</span>
+                    </div>
+                    <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px', accentColor: 'var(--primary-btn-bg)' }} />
                   </div>
-                  <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px', accentColor: 'var(--primary-btn-bg)' }} />
-                </div>
-                <div style={{ height: '1px', backgroundColor: 'var(--border-light)' }}></div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-sm">Weekly Report</p>
-                    <p className="text-sm text-muted">Get a weekly summary of your QR code scan statistics.</p>
+                  <div className="preference-divider"></div>
+                  <div className="preference-item">
+                    <div className="preference-info">
+                      <p>Weekly Report</p>
+                      <span>Get a weekly summary of your QR code scan statistics.</span>
+                    </div>
+                    <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px', accentColor: 'var(--primary-btn-bg)' }} />
                   </div>
-                  <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px', accentColor: 'var(--primary-btn-bg)' }} />
-                </div>
-                <div style={{ height: '1px', backgroundColor: 'var(--border-light)' }}></div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-sm">Billing Alerts</p>
-                    <p className="text-sm text-muted">Receive notifications about your subscription and invoices.</p>
+                  <div className="preference-divider"></div>
+                  <div className="preference-item">
+                    <div className="preference-info">
+                      <p>Billing Alerts</p>
+                      <span>Receive notifications about your subscription and invoices.</span>
+                    </div>
+                    <input type="checkbox" defaultChecked disabled style={{ width: '20px', height: '20px', accentColor: 'var(--primary-btn-bg)' }} />
                   </div>
-                  <input type="checkbox" defaultChecked disabled style={{ width: '20px', height: '20px', accentColor: 'var(--primary-btn-bg)' }} />
                 </div>
               </CardContent>
               <CardFooter className="justify-end">
@@ -181,23 +209,23 @@ export const Settings: React.FC = () => {
           )}
 
           {activeTab === 'billing' && (
-            <div className="flex flex-col gap-6">
+            <div className="settings-content">
               <Card>
                 <CardHeader>
                   <CardTitle>Current Plan</CardTitle>
                   <CardDescription>You are currently on the Free tier.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-4)', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
+                  <div className="plan-info-box">
                     <div>
-                      <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>Free Plan</h3>
-                      <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>3 Dynamic QR Codes limit</p>
+                      <h3>Free Plan</h3>
+                      <p>3 Dynamic QR Codes limit</p>
                     </div>
-                    <h2 style={{ fontSize: '28px', fontWeight: 700, margin: 0 }}>$0 <span style={{ fontSize: '14px', fontWeight: 400, color: 'var(--text-muted)' }}>/mo</span></h2>
+                    <h2 className="plan-price">$0 <span>/mo</span></h2>
                   </div>
                   
                   <div style={{ marginTop: 'var(--space-6)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium">Usage: 1 / 3 Dynamic Codes</span>
                       <span className="text-sm text-muted">33%</span>
                     </div>
@@ -227,23 +255,23 @@ export const Settings: React.FC = () => {
           )}
 
           {activeTab === 'security' && (
-            <div className="flex flex-col gap-6">
+            <div className="settings-content">
               <Card>
                 <CardHeader>
                   <CardTitle>Change Password</CardTitle>
                   <CardDescription>Ensure your account is using a long, random password to stay secure.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Current Password</label>
+                <CardContent className="settings-content">
+                  <div className="settings-form-group">
+                    <label className="settings-form-label">Current Password</label>
                     <Input type="password" placeholder="••••••••" />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">New Password</label>
+                  <div className="settings-form-group">
+                    <label className="settings-form-label">New Password</label>
                     <Input type="password" placeholder="••••••••" />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Confirm New Password</label>
+                  <div className="settings-form-group">
+                    <label className="settings-form-label">Confirm New Password</label>
                     <Input type="password" placeholder="••••••••" />
                   </div>
                 </CardContent>
@@ -258,10 +286,10 @@ export const Settings: React.FC = () => {
                   <CardDescription>Irreversible actions for your account.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between p-4 border border-border-light rounded-lg" style={{ borderColor: 'rgba(239, 68, 68, 0.2)', backgroundColor: 'rgba(239, 68, 68, 0.02)' }}>
+                  <div className="danger-zone-box">
                     <div>
-                      <p className="font-medium text-sm" style={{ color: 'var(--danger)' }}>Delete Account</p>
-                      <p className="text-sm text-muted">Once you delete your account, there is no going back. Please be certain.</p>
+                      <p className="title">Delete Account</p>
+                      <p className="desc">Once you delete your account, there is no going back. Please be certain.</p>
                     </div>
                     <Button variant="outline" style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}>
                       Delete Account

@@ -5,7 +5,8 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  updateProfile
 } from 'firebase/auth';
 import { auth, hasValidFirebaseConfig } from '../lib/firebase';
 
@@ -23,6 +24,7 @@ interface AuthContextType {
   signup: (email: string, pass: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  updateProfileData: (data: { displayName?: string, photoURL?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -101,8 +103,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updateProfileData = async (data: { displayName?: string, photoURL?: string }) => {
+    if (hasValidFirebaseConfig && auth && auth.currentUser) {
+      await updateProfile(auth.currentUser, data);
+      setUser(prev => prev ? { ...prev, ...data } : null);
+    } else if (user) {
+      // Demo Mode
+      const updatedUser = { ...user, ...data };
+      localStorage.setItem('demo_user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, logout, updateProfileData }}>
       {children}
     </AuthContext.Provider>
   );
