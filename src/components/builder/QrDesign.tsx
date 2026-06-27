@@ -62,15 +62,15 @@ export const QrDesign: React.FC<QrDesignProps> = ({ design, onChange }) => {
   const centerStyles = ['square', 'dot'];
 
   const predefinedLogos = [
-    { id: 'whatsapp', icon: <FaWhatsapp color="#25D366" />, bg: '#fff' },
-    { id: 'instagram', icon: <FaInstagram color="#E1306C" />, bg: '#fff' },
-    { id: 'facebook', icon: <FaFacebook color="#1877F2" />, bg: '#fff' },
-    { id: 'youtube', icon: <FaYoutube color="#FF0000" />, bg: '#fff' },
-    { id: 'location', icon: <FaMapMarkerAlt color="#EA4335" />, bg: '#fff' },
-    { id: 'wifi', icon: <FaWifi color="#111" />, bg: '#fff' },
-    { id: 'mail', icon: <FaEnvelope color="#FBBC05" />, bg: '#fff' },
-    { id: 'paypal', icon: <FaPaypal color="#00457C" />, bg: '#fff', url: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg' },
-    { id: 'bitcoin', icon: <FaBitcoin color="#F7931A" />, bg: '#fff', url: 'https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg' },
+    { id: 'whatsapp', icon: <FaWhatsapp color="#25D366" />, bg: '#fff', url: 'https://img.icons8.com/color/128/whatsapp--v1.png' },
+    { id: 'instagram', icon: <FaInstagram color="#E1306C" />, bg: '#fff', url: 'https://img.icons8.com/color/128/instagram-new--v1.png' },
+    { id: 'facebook', icon: <FaFacebook color="#1877F2" />, bg: '#fff', url: 'https://img.icons8.com/color/128/facebook-new.png' },
+    { id: 'youtube', icon: <FaYoutube color="#FF0000" />, bg: '#fff', url: 'https://img.icons8.com/color/128/youtube-play.png' },
+    { id: 'location', icon: <FaMapMarkerAlt color="#EA4335" />, bg: '#fff', url: 'https://img.icons8.com/color/128/marker--v1.png' },
+    { id: 'wifi', icon: <FaWifi color="#111" />, bg: '#fff', url: 'https://img.icons8.com/ios-filled/128/wifi.png' },
+    { id: 'mail', icon: <FaEnvelope color="#FBBC05" />, bg: '#fff', url: 'https://img.icons8.com/color/128/new-post.png' },
+    { id: 'paypal', icon: <FaPaypal color="#00457C" />, bg: '#fff', url: 'https://img.icons8.com/color/128/paypal.png' },
+    { id: 'bitcoin', icon: <FaBitcoin color="#F7931A" />, bg: '#fff', url: 'https://img.icons8.com/color/128/bitcoin--v1.png' },
   ];
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

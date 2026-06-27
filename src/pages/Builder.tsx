@@ -162,7 +162,7 @@ export const Builder: React.FC = () => {
         color: qrDesign.fgColor,
         type: qrDesign.cornerCenterStyle as any
       },
-      image: qrDesign.logo || undefined
+      image: qrDesign.logo || ''
     });
   }, [qrCode, qrString, qrDesign]);
 
