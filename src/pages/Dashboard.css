@@ -236,7 +236,6 @@
 
 .data-table-header {
   display: grid;
-  grid-template-columns: 40px 2fr 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   padding: var(--space-4);
   border-bottom: 1px solid var(--border-light);
@@ -661,7 +660,7 @@
      grid-template-columns: 40px 1fr auto !important;
      padding: var(--space-2) !important;
   }
-  .col-type, .col-created, .col-edited, .col-state {
+  .col-type, .col-created, .col-edited, .col-state, .col-scans {
      display: none !important;
   }
   .qr-name-info {

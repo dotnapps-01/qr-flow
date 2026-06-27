@@ -699,7 +699,7 @@ export const Dashboard: React.FC = () => {
           </Card>
         ) : viewMode === 'list' ? (
           <Card className="data-table-card">
-            <div className="data-table-header" style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr' : '40px 2fr 1fr 1fr 1fr 1fr' }}>
+            <div className="data-table-header" style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr 40px' : '40px 2fr 1fr 1fr 1fr 1fr 40px' }}>
               <div className="col-checkbox">
                 <input 
                   type="checkbox" 
@@ -723,7 +723,7 @@ export const Dashboard: React.FC = () => {
             
             <div className="data-table-body">
               {paginatedData.map(qr => (
-                <div key={qr.id} className={`data-table-row ${selectedQrCodes.includes(qr.id) ? 'selected-row' : ''}`} style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr' : '40px 2fr 1fr 1fr 1fr 1fr' }}>
+                <div key={qr.id} className={`data-table-row ${selectedQrCodes.includes(qr.id) ? 'selected-row' : ''}`} style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr 40px' : '40px 2fr 1fr 1fr 1fr 1fr 40px' }}>
                   <div className="col-checkbox">
                     <input 
                       type="checkbox" 
