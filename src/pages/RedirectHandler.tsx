@@ -109,9 +109,9 @@ export const RedirectHandler: React.FC = () => {
         setError('Unsupported QR Code Type');
         setLoading(false);
 
-      } catch (err) {
+      } catch (err: any) {
         console.error("Redirect Error:", err);
-        setError('Something went wrong while redirecting.');
+        setError(err.message || 'Something went wrong while redirecting.');
         setLoading(false);
       }
     };
@@ -131,9 +131,12 @@ export const RedirectHandler: React.FC = () => {
   if (error) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px', backgroundColor: 'var(--bg-secondary)' }}>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: '400px' }}>
           <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '16px' }}>Oops!</h1>
-          <p style={{ color: 'var(--text-muted)' }}>{error}</p>
+          <div style={{ color: 'var(--danger)', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '16px', borderRadius: '8px', wordBreak: 'break-word', fontSize: '14px' }}>
+            {error}
+          </div>
+          <p style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-muted)' }}>If you created this without logging in, the QR code is only saved on your computer and cannot be scanned from other devices.</p>
         </div>
       </div>
     );
