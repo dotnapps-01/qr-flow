@@ -216,12 +216,12 @@ export const RedirectHandler: React.FC = () => {
             </div>
             
             <Button style={{ width: '100%' }} onClick={() => {
-              const vcf = `BEGIN:VCARD\nVERSION:3.0\nN:${safeData.lastName || ''};${safeData.firstName || ''}\nFN:${safeData.firstName || ''} ${safeData.lastName || ''}\nORG:${safeData.company || ''}\nTEL:${safeData.countryCode || '+91'}${safeData.phone || ''}\nEMAIL:${safeData.email || ''}\nEND:VCARD`;
+              const vcf = `BEGIN:VCARD\nVERSION:3.0\nN:${data.lastName || ''};${data.firstName || ''}\nFN:${data.firstName || ''} ${data.lastName || ''}\nORG:${data.company || ''}\nTEL:${data.countryCode || '+91'}${data.phone || ''}\nEMAIL:${data.email || ''}\nEND:VCARD`;
               const blob = new Blob([vcf], { type: 'text/vcard' });
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a');
               a.href = url;
-              a.download = `${safeData.firstName || 'contact'}.vcf`;
+              a.download = `${data.firstName || 'contact'}.vcf`;
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
