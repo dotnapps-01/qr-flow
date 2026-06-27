@@ -133,7 +133,7 @@ export const Overview: React.FC = () => {
   return (
     <div className="overview-container animate-fade-in">
       <header className="overview-header">
-        <div>
+        <div className="overview-title-wrapper">
           <h1 className="text-display">Welcome back, {user?.displayName?.split(' ')[0] || 'there'} 👋</h1>
           <p className="overview-subtitle">Here's what's happening with your QR codes today.</p>
         </div>
@@ -142,45 +142,9 @@ export const Overview: React.FC = () => {
         </Button>
       </header>
 
-      {/* KPIs */}
-      <div className="kpi-grid">
-        <Card className="kpi-card shadow-sm border-light">
-          <div className="kpi-icon-box bg-primary-light">
-            <QrCodeIcon size={24} className="text-primary" />
-          </div>
-          <div className="kpi-content">
-            <span className="kpi-label">Total QR Codes</span>
-            <span className="kpi-value">{stats.total}</span>
-          </div>
-        </Card>
-        
-        <Card className="kpi-card shadow-sm border-light">
-          <div className="kpi-icon-box bg-success-light">
-            <BarChart3 size={24} className="text-success" />
-          </div>
-          <div className="kpi-content">
-            <span className="kpi-label">Total Scans</span>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-              <span className="kpi-value">{stats.scans.toLocaleString()}</span>
-              <span className="kpi-trend positive"><TrendingUp size={14} /> +12%</span>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="kpi-card shadow-sm border-light">
-          <div className="kpi-icon-box bg-warning-light">
-            <Zap size={24} className="text-warning" />
-          </div>
-          <div className="kpi-content">
-            <span className="kpi-label">Active Dynamic QRs</span>
-            <span className="kpi-value">{stats.active}</span>
-          </div>
-        </Card>
-      </div>
-
-      <div className="overview-main-grid">
-        {/* Chart Section */}
-        <Card className="chart-card shadow-sm border-light">
+      <div className="bento-grid">
+        {/* Chart (Top Left Large) */}
+        <div className="bento-item bento-chart">
           <div className="chart-header">
             <h3>Scan Performance</h3>
             <select className="chart-select">
@@ -189,61 +153,100 @@ export const Overview: React.FC = () => {
               <option>All Time</option>
             </select>
           </div>
-          <div className="chart-wrapper" style={{ width: '100%', height: 300 }}>
+          <div className="chart-wrapper" style={{ flex: 1, minHeight: 250, width: '100%', position: 'relative', left: '-10px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorScans" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--primary-btn-bg)" stopOpacity={0.3}/>
+                    <stop offset="5%" stopColor="var(--primary-btn-bg)" stopOpacity={0.4}/>
                     <stop offset="95%" stopColor="var(--primary-btn-bg)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-light)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--shadow-md)', backgroundColor: 'var(--bg-card)' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--shadow-lg)', backgroundColor: 'var(--bg-card)' }}
                   itemStyle={{ color: 'var(--text-primary)', fontWeight: 600 }}
+                  cursor={{ stroke: 'var(--border-color)', strokeWidth: 2, strokeDasharray: '5 5' }}
                 />
-                <Area type="monotone" dataKey="scans" stroke="var(--primary-btn-bg)" strokeWidth={3} fillOpacity={1} fill="url(#colorScans)" />
+                <Area type="monotone" dataKey="scans" stroke="var(--primary-btn-bg)" strokeWidth={4} fillOpacity={1} fill="url(#colorScans)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </div>
 
-        {/* Recent QR Codes Section */}
-        <div className="recent-qrs-section">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 600 }}>Recent QR Codes</h3>
-            <Button variant="ghost" rightIcon={<ArrowRight size={16} />} onClick={() => navigate('/projects')}>View All</Button>
+        {/* KPI 1: Total QR Codes */}
+        <div className="bento-item bento-kpi-total">
+          <div className="bento-kpi-header">
+            <div className="bento-icon-box bg-glass-primary">
+              <QrCodeIcon size={20} />
+            </div>
+            <span className="bento-kpi-label">Total Codes</span>
+          </div>
+          <span className="bento-kpi-value">{stats.total}</span>
+        </div>
+
+        {/* KPI 2: Total Scans (Tall) */}
+        <div className="bento-item bento-kpi-scans">
+          <div>
+            <div className="bento-kpi-header">
+              <div className="bento-icon-box bg-glass-success">
+                <BarChart3 size={20} />
+              </div>
+              <span className="bento-kpi-label">Total Scans</span>
+            </div>
+            <span className="bento-kpi-value">{stats.scans.toLocaleString()}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--success)', fontSize: '14px', fontWeight: 600, marginTop: 'var(--space-4)' }}>
+            <TrendingUp size={16} />
+            <span>+12% this week</span>
+          </div>
+        </div>
+
+        {/* KPI 3: Active QRs */}
+        <div className="bento-item bento-kpi-active">
+          <div className="bento-kpi-header" style={{ justifyContent: 'center' }}>
+            <div className="bento-icon-box bg-glass-warning">
+              <Zap size={20} />
+            </div>
+          </div>
+          <span className="bento-kpi-value">{stats.active}</span>
+          <span className="bento-kpi-label" style={{ marginTop: '8px' }}>Active Codes</span>
+        </div>
+
+        {/* Recent QRs */}
+        <div className="bento-item bento-recent">
+          <div className="bento-recent-header">
+            <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Recent Activity</h3>
+            <Button variant="ghost" size="sm" rightIcon={<ArrowRight size={14} />} onClick={() => navigate('/projects')}>View All</Button>
           </div>
           
           <div className="recent-qrs-list">
             {recentQrs.length === 0 ? (
-              <Card className="empty-recent-card shadow-none border-dashed">
-                <QrCodeIcon size={32} style={{ color: 'var(--text-muted)', opacity: 0.5, marginBottom: '12px' }} />
-                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '16px' }}>No QR codes created yet.</p>
-                <Button size="sm" onClick={() => navigate('/builder')}>Create your first QR</Button>
-              </Card>
+              <div style={{ textAlign: 'center', padding: 'var(--space-4) 0', color: 'var(--text-muted)' }}>
+                <p style={{ fontSize: '13px', marginBottom: '8px' }}>No activity yet.</p>
+              </div>
             ) : (
               recentQrs.map(qr => (
-                <Card key={qr.id} className="recent-qr-card shadow-sm border-light" onClick={() => navigate(`/projects`)} interactive>
+                <div key={qr.id} className="recent-qr-card" onClick={() => navigate(`/projects`)}>
                   <div className="recent-qr-icon">
-                    <QrCodeIcon size={20} />
+                    <QrCodeIcon size={16} />
                   </div>
                   <div className="recent-qr-info">
                     <span className="recent-qr-name">{qr.name}</span>
-                    <span className="recent-qr-date">Created {new Date(qr.createdAt).toLocaleDateString()}</span>
+                    <span className="recent-qr-date">{new Date(qr.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div className="recent-qr-scans">
-                    <span style={{ fontWeight: 600 }}>{qr.scans}</span>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>scans</span>
+                    <span style={{ fontWeight: 700, fontSize: '14px' }}>{qr.scans}</span>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>scans</span>
                   </div>
-                </Card>
+                </div>
               ))
             )}
           </div>
         </div>
+
       </div>
     </div>
   );
