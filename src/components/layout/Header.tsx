@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </Button>
         
         <div className="mobile-header-logo" style={{ alignItems: 'center', gap: '10px', marginRight: 'var(--space-4)' }}>
-          <img src="/logo.png" alt="QRFLOW Logo" style={{ width: '28px', height: '28px' }} />
+          <img src="/logo.png" alt="QRFLOW Logo" style={{ width: '34px', height: '34px' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontWeight: 800, fontSize: '18px', lineHeight: 1, letterSpacing: '-0.5px' }}>QRFLOW</span>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500, marginTop: '2px' }}>By Dotn Apps</span>
