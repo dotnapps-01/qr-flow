@@ -15,6 +15,7 @@ interface WorkspaceContextType {
   updateWorkspaceName: (newName: string) => Promise<void>;
   users: WorkspaceUser[];
   inviteUser: (email: string, role: 'Admin' | 'Member') => Promise<void>;
+  removeUser: (userId: string) => Promise<void>;
   loadingWorkspace: boolean;
 }
 
@@ -131,8 +132,30 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
+  const removeUser = async (userId: string) => {
+    if (!user || userId === user.id) return; // Cannot remove self/owner here simply
+    const updatedUsers = users.filter(u => u.id !== userId);
+    setUsers(updatedUsers);
+    
+    try {
+      if (db) {
+        const workspaceRef = doc(db, 'workspaces', user.id);
+        await updateDoc(workspaceRef, { users: updatedUsers });
+      } else {
+        const savedStr = localStorage.getItem(`demo_workspace_${user.id}`);
+        if (savedStr) {
+          const saved = JSON.parse(savedStr);
+          saved.users = updatedUsers;
+          localStorage.setItem(`demo_workspace_${user.id}`, JSON.stringify(saved));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to remove user:", err);
+    }
+  };
+
   return (
-    <WorkspaceContext.Provider value={{ workspaceName, updateWorkspaceName, users, inviteUser, loadingWorkspace }}>
+    <WorkspaceContext.Provider value={{ workspaceName, updateWorkspaceName, users, inviteUser, removeUser, loadingWorkspace }}>
       {children}
     </WorkspaceContext.Provider>
   );

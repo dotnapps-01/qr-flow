@@ -4,10 +4,11 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { useWorkspace } from '../contexts/WorkspaceContext';
-import { Mail, UserPlus, Shield, ShieldAlert, X } from 'lucide-react';
+import { Mail, UserPlus, Shield, ShieldAlert, Trash2 } from 'lucide-react';
+import './Users.css';
 
 export const UsersPage: React.FC = () => {
-  const { users, inviteUser, loadingWorkspace } = useWorkspace();
+  const { users, inviteUser, removeUser, loadingWorkspace } = useWorkspace();
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'Admin' | 'Member'>('Member');
   const [isInviting, setIsInviting] = useState(false);
@@ -22,46 +23,52 @@ export const UsersPage: React.FC = () => {
     setIsInviting(false);
   };
 
+  const handleRemove = async (id: string) => {
+    if (window.confirm("Are you sure you want to remove this user from the workspace?")) {
+      await removeUser(id);
+    }
+  };
+
   if (loadingWorkspace) {
-    return <div className="p-8 text-muted">Loading workspace...</div>;
+    return <div style={{ padding: 'var(--space-8)', color: 'var(--text-muted)' }}>Loading workspace...</div>;
   }
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in max-w-[1000px]">
-      <div>
+    <div className="users-container animate-fade-in">
+      <div className="users-header">
         <h1 className="text-display">Users</h1>
-        <p className="text-body text-muted mt-1">Manage who has access to this workspace.</p>
+        <p className="users-subtitle">Manage who has access to this workspace.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+      <div className="users-grid">
+        <div className="users-list-column">
           <Card>
             <CardHeader>
               <CardTitle>Team Members</CardTitle>
               <CardDescription>People with access to your QR codes and settings.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-4">
+              <div className="team-list">
                 {users.map(u => (
-                  <div key={u.id} className="flex items-center justify-between p-4 border border-border-color rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-secondary text-text-primary flex items-center justify-center font-bold">
+                  <div key={u.id} className="team-member-card">
+                    <div className="member-info-group">
+                      <div className="member-avatar">
                         {u.email.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <p className="font-medium">{u.email}</p>
-                        <p className="text-sm text-muted">Joined {new Date(u.joinedAt).toLocaleDateString()}</p>
+                      <div className="member-details">
+                        <p className="member-email">{u.email}</p>
+                        <p className="member-joined">Joined {new Date(u.joinedAt).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="member-actions">
                       <Badge variant={u.role === 'Owner' ? 'success' : 'outline'}>
                         {u.role === 'Owner' && <ShieldAlert size={12} className="mr-1 inline" />}
                         {u.role === 'Admin' && <Shield size={12} className="mr-1 inline" />}
                         {u.role}
                       </Badge>
                       {u.role !== 'Owner' && (
-                        <Button variant="ghost" size="icon" style={{ color: 'var(--danger)' }}>
-                          <X size={16} />
+                        <Button variant="ghost" size="icon" style={{ color: 'var(--danger)' }} onClick={() => handleRemove(u.id)}>
+                          <Trash2 size={16} />
                         </Button>
                       )}
                     </div>
@@ -72,22 +79,21 @@ export const UsersPage: React.FC = () => {
           </Card>
         </div>
 
-        <div>
+        <div className="users-invite-column">
           <Card>
             <CardHeader>
               <CardTitle>Invite User</CardTitle>
               <CardDescription>Add someone to your workspace.</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleInvite} className="flex flex-col gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Email Address</label>
-                  <div className="relative">
-                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+              <form onSubmit={handleInvite} className="invite-form">
+                <div className="form-group">
+                  <label className="form-label">Email Address</label>
+                  <div className="input-with-icon-wrapper">
+                    <Mail size={16} className="input-icon-left" />
                     <Input 
                       type="email" 
                       placeholder="colleague@company.com" 
-                      style={{ paddingLeft: '36px' }}
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
                       required
@@ -95,10 +101,10 @@ export const UsersPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Role</label>
+                <div className="form-group">
+                  <label className="form-label">Role</label>
                   <select 
-                    className="w-full bg-bg-primary border border-border-color rounded-md px-3 py-2 text-sm text-text-primary"
+                    className="custom-select"
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value as 'Admin' | 'Member')}
                   >
@@ -110,7 +116,7 @@ export const UsersPage: React.FC = () => {
                 <Button 
                   type="submit" 
                   leftIcon={<UserPlus size={16} />} 
-                  style={{ width: '100%', marginTop: '8px' }}
+                  style={{ width: '100%', marginTop: 'var(--space-2)' }}
                   disabled={isInviting}
                 >
                   {isInviting ? 'Inviting...' : 'Send Invite'}
