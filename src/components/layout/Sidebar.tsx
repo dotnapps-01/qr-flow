@@ -40,7 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     <aside className={clsx('sidebar', { 'open': isOpen })}>
       <div className="sidebar-header">
         <div className="logo">
-          <img src="/logo.png" alt="QRFLOW Logo" className="logo-img" />
+          <img src="/logo.png" alt="QRFLOW Logo" className="logo-img" style={{ mixBlendMode: 'multiply' }} />
           <div style={{ display: 'flex', flexDirection: 'column', marginTop: '2px' }}>
             <span className="logo-text" style={{ lineHeight: 1 }}>QRFLOW</span>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500, letterSpacing: 'normal', marginTop: '2px' }}>By Dotn Apps</span>

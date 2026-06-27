@@ -35,9 +35,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onSearchClick }) =>
         <Button variant="ghost" size="icon" className="mobile-menu-btn" onClick={onMenuClick}>
           <Menu className="header-icon" />
         </Button>
-        
-        <div className="mobile-header-logo" style={{ alignItems: 'center', gap: '10px', marginRight: 'var(--space-4)' }}>
-          <img src="/logo.png" alt="QRFLOW Logo" style={{ width: '34px', height: '34px' }} />
+        <div className="mobile-header-logo" style={{ alignItems: 'center', gap: '6px', marginRight: 'var(--space-4)' }}>
+          <img src="/logo.png" alt="QRFLOW Logo" style={{ mixBlendMode: 'multiply' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontWeight: 800, fontSize: '18px', lineHeight: 1, letterSpacing: '-0.5px' }}>QRFLOW</span>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500, marginTop: '2px' }}>By Dotn Apps</span>
