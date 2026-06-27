@@ -26,7 +26,9 @@ function App() {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/builder" element={<Builder />} />
-                <Route path="/projects" element={<div className="text-display">Projects Component</div>} />
+                <Route path="/projects" element={<Dashboard />} />
+                <Route path="/templates" element={<div className="dashboard-container"><h1 className="text-display">Templates</h1><p style={{marginTop: '1rem', color: 'var(--text-muted)'}}>Coming Soon.</p></div>} />
+                <Route path="/stats" element={<div className="dashboard-container"><h1 className="text-display">Global Statistics</h1><p style={{marginTop: '1rem', color: 'var(--text-muted)'}}>Coming Soon.</p></div>} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/login" element={<Login />} />
