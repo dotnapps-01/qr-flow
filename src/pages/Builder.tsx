@@ -453,33 +453,57 @@ export const Builder: React.FC = () => {
         <div className="builder-preview">
           <div className="preview-container">
             <div className="preview-header">
-              <span>Example</span>
+              <span>Preview</span>
             </div>
-            <div className="phone-mockup">
-              <div className="phone-screen">
-                <div className="phone-notch"></div>
-                {activeStep >= 2 && Object.keys(qrData).length > 0 ? (
-                  <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                     <div ref={qrRef} />
+            
+            {(() => {
+              const mobileTypes = ['apps', 'whatsapp', 'instagram', 'facebook', 'telegram', 'sms', 'phone', 'vcard', 'youtube'];
+              const browserTypes = ['url', 'custom-url', 'booking', 'map'];
+              
+              let mockupType = 'card';
+              if (selectedType && mobileTypes.includes(selectedType)) mockupType = 'mobile';
+              if (selectedType && browserTypes.includes(selectedType)) mockupType = 'browser';
+
+              return (
+                <div className={`mockup-wrapper mockup-${mockupType}`}>
+                  {mockupType === 'mobile' && <div className="phone-notch"></div>}
+                  
+                  {mockupType === 'browser' && (
+                    <div className="browser-header">
+                      <div className="browser-dots">
+                        <span className="browser-dot close"></span>
+                        <span className="browser-dot minimize"></span>
+                        <span className="browser-dot maximize"></span>
+                      </div>
+                      <div className="browser-url-bar">{qrData.url || 'example.com'}</div>
+                    </div>
+                  )}
+
+                  <div className="mockup-screen">
+                    {activeStep >= 2 && Object.keys(qrData).length > 0 ? (
+                      <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                         <div ref={qrRef} />
+                      </div>
+                    ) : (
+                      <div className="qr-placeholder">
+                        <div className="qr-placeholder-icon"></div>
+                      </div>
+                    )}
+                    {activeStep >= 2 && Object.keys(qrData).length > 0 && (
+                       <div style={{ marginTop: '20px', padding: '16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', fontSize: '12px', wordBreak: 'break-all', width: '100%', border: '1px solid var(--border-color)' }}>
+                          <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--text-primary)' }}>Raw Data Preview</h3>
+                          {Object.entries(qrData).map(([k, v]) => (
+                             <div key={k} style={{ marginBottom: '4px', display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ color: 'var(--text-muted)', fontSize: '10px', textTransform: 'uppercase' }}>{k}</span> 
+                                <span style={{ fontWeight: 500 }}>{String(v) || '-'}</span>
+                             </div>
+                          ))}
+                       </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="qr-placeholder">
-                    <div className="qr-placeholder-icon"></div>
-                  </div>
-                )}
-                {activeStep >= 2 && Object.keys(qrData).length > 0 && (
-                   <div style={{ marginTop: '20px', padding: '16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', fontSize: '12px', wordBreak: 'break-all', width: '100%', border: '1px solid var(--border-color)' }}>
-                      <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--text-primary)' }}>Raw Data Preview</h3>
-                      {Object.entries(qrData).map(([k, v]) => (
-                         <div key={k} style={{ marginBottom: '4px', display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ color: 'var(--text-muted)', fontSize: '10px', textTransform: 'uppercase' }}>{k}</span> 
-                            <span style={{ fontWeight: 500 }}>{String(v) || '-'}</span>
-                         </div>
-                      ))}
-                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
