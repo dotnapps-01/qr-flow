@@ -122,7 +122,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             )}
           </div>
         ) : (
-          <div className="workspace-switcher" style={{ cursor: 'default' }}>
+          <div className="workspace-switcher" style={{ cursor: 'pointer' }} onClick={() => navigate('/login')}>
+             <div className="workspace-avatar" style={{ textTransform: 'uppercase' }}>
+               G
+             </div>
              <span className="workspace-name">Guest</span>
           </div>
         )}
