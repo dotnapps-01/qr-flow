@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import QRCodeStyling from 'qr-code-styling';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { FaWhatsapp, FaYoutube, FaInstagram, FaFacebook, FaTelegramPlane } from 'react-icons/fa';
@@ -80,6 +80,8 @@ export const Builder: React.FC = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const { user, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   
   const [qrCode] = useState(() => new QRCodeStyling({
     width: 200,
@@ -158,6 +160,42 @@ export const Builder: React.FC = () => {
       qrCode.append(qrRef.current);
     }
   }, [qrCode, activeStep]);
+
+  useEffect(() => {
+    if (editId) {
+      const loadEditData = async () => {
+        if (db) {
+          try {
+             const docRef = doc(db, 'qr_codes', editId);
+             const docSnap = await getDoc(docRef);
+             if (docSnap.exists()) {
+                const data = docSnap.data();
+                setQrName(data.name || '');
+                setSelectedType(data.type);
+                setQrData(data.data || {});
+                setDynamicId(editId);
+                setQrCategory('dynamic');
+                setActiveStep(2);
+             }
+          } catch(err) {
+             console.error('Failed to fetch QR for edit', err);
+          }
+        } else {
+           const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
+           if (saved[editId]) {
+              const data = saved[editId];
+              setQrName(data.name || '');
+              setSelectedType(data.type);
+              setQrData(data.data || {});
+              setDynamicId(editId);
+              setQrCategory('dynamic');
+              setActiveStep(2);
+           }
+        }
+      };
+      loadEditData();
+    }
+  }, [editId]);
 
   useEffect(() => {
     qrCode.update({

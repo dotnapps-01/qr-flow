@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { QRCodeSVG } from 'qrcode.react';
 export interface QrCode {
   id: string;
   name: string;
@@ -36,7 +37,10 @@ import {
   ArrowLeft,
   X,
   Trash2,
-  FolderPlus
+  FolderPlus,
+  Eye,
+  Edit2,
+  Download
 } from 'lucide-react';
 import './Dashboard.css';
 
@@ -79,6 +83,11 @@ export const Dashboard: React.FC = () => {
   // Folder Rename State
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editFolderName, setEditFolderName] = useState('');
+
+  // QR Code Modals State
+  const [viewQrId, setViewQrId] = useState<string | null>(null);
+  const [renameQrId, setRenameQrId] = useState<string | null>(null);
+  const [renameInput, setRenameInput] = useState('');
 
   // Selection Handlers
   const toggleSelection = (qrId: string) => {
@@ -269,6 +278,47 @@ export const Dashboard: React.FC = () => {
        } catch(err) {
          console.error("Failed to bulk move", err);
        }
+    }
+  };
+
+  const handleRenameQr = async (qrId: string) => {
+    const newName = renameInput.trim();
+    if (!newName) return;
+
+    setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, name: newName } : qr));
+    
+    if (db) {
+       try {
+          await updateDoc(doc(db, 'qr_codes', qrId), { name: newName });
+       } catch(err) {
+          console.error("Failed to rename QR", err);
+       }
+    } else {
+       const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
+       if (saved[qrId]) {
+         saved[qrId].name = newName;
+         localStorage.setItem('demo_qrs', JSON.stringify(saved));
+       }
+    }
+    setRenameQrId(null);
+  };
+
+  const handleDeleteQr = async (qrId: string) => {
+    if (!window.confirm('Are you sure you want to delete this QR code?')) return;
+    
+    setQrCodesData(prev => prev.filter(qr => qr.id !== qrId));
+    setSelectedQrCodes(prev => prev.filter(id => id !== qrId));
+
+    if (db) {
+       try {
+          await deleteDoc(doc(db, 'qr_codes', qrId));
+       } catch(err) {
+          console.error("Failed to delete QR", err);
+       }
+    } else {
+       const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
+       delete saved[qrId];
+       localStorage.setItem('demo_qrs', JSON.stringify(saved));
     }
   };
 
@@ -668,6 +718,7 @@ export const Dashboard: React.FC = () => {
               <div className="col-edited">Edited</div>
               <div className="col-state">State</div>
               {showVisits && <div className="col-scans">Scans</div>}
+              <div style={{ width: '40px' }}></div> {/* Spacer for dropdown */}
             </div>
             
             <div className="data-table-body">
@@ -700,6 +751,16 @@ export const Dashboard: React.FC = () => {
                     <Badge variant={qr.state === 'Active' ? 'success' : 'outline'} style={{ fontSize: 'var(--text-xs)' }}>{qr.state}</Badge>
                   </div>
                   {showVisits && <div className="col-scans" style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>{qr.scans.toLocaleString()}</div>}
+                  <div className="dropdown-wrapper" onClick={e => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" style={{color: 'var(--text-muted)'}}><MoreVertical size={16} /></Button>
+                    <div className="dropdown-menu narrow" style={{ right: 0, left: 'auto' }}>
+                       <button className="dropdown-item" onClick={() => setViewQrId(qr.id)}><Eye size={14} style={{marginRight: '8px', display: 'inline'}}/> View</button>
+                       <button className="dropdown-item" onClick={() => { setRenameQrId(qr.id); setRenameInput(qr.name); }}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Rename</button>
+                       <button className="dropdown-item" onClick={() => navigate(`/builder?edit=${qr.id}`)}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Edit Content</button>
+                       {selectedFolderId && <button className="dropdown-item" onClick={() => handleRemoveQrFromFolder(qr.id)}><Folder size={14} style={{marginRight: '8px', display: 'inline'}}/> Remove from folder</button>}
+                       <button className="dropdown-item" style={{color: 'var(--danger-color)'}} onClick={() => handleDeleteQr(qr.id)}><Trash2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Delete</button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -727,10 +788,14 @@ export const Dashboard: React.FC = () => {
                     <button className="star-btn" onClick={(e) => { e.stopPropagation(); toggleFavorite(qr.id); }}>
                       <Star size={16} className={qr.isFavorite ? "star-icon" : "star-icon-inactive"} />
                     </button>
-                    <div className="dropdown-wrapper">
+                    <div className="dropdown-wrapper" onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="icon" style={{color: 'var(--text-muted)'}}><MoreVertical size={16} /></Button>
-                      <div className="dropdown-menu narrow">
-                         {selectedFolderId && <button className="dropdown-item" onClick={(e) => { e.stopPropagation(); handleRemoveQrFromFolder(qr.id); }}>Remove from folder</button>}
+                      <div className="dropdown-menu narrow" style={{ right: 0, left: 'auto' }}>
+                         <button className="dropdown-item" onClick={() => setViewQrId(qr.id)}><Eye size={14} style={{marginRight: '8px', display: 'inline'}}/> View</button>
+                         <button className="dropdown-item" onClick={() => { setRenameQrId(qr.id); setRenameInput(qr.name); }}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Rename</button>
+                         <button className="dropdown-item" onClick={() => navigate(`/builder?edit=${qr.id}`)}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Edit Content</button>
+                         {selectedFolderId && <button className="dropdown-item" onClick={() => handleRemoveQrFromFolder(qr.id)}><Folder size={14} style={{marginRight: '8px', display: 'inline'}}/> Remove from folder</button>}
+                         <button className="dropdown-item" style={{color: 'var(--danger-color)'}} onClick={() => handleDeleteQr(qr.id)}><Trash2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Delete</button>
                       </div>
                     </div>
                   </div>
@@ -815,7 +880,7 @@ export const Dashboard: React.FC = () => {
                   ))}
                   {/* Option to remove from folder if currently in one */}
                   {selectedFolderId && (
-                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px', cursor: 'pointer' }} className="hover-bg-secondary" onClick={() => handleBulkMove(undefined as any)}>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px', cursor: 'pointer' }} className="hover-bg-secondary" onClick={() => handleBulkMove(undefined)}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                          <X size={20} style={{ color: 'var(--text-muted)' }} />
                          <span style={{ fontWeight: 500 }}>Remove from folder</span>
@@ -825,10 +890,84 @@ export const Dashboard: React.FC = () => {
                 </div>
               )}
             </div>
+            <div className="modal-footer" style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <Button variant="outline" onClick={() => setIsBulkMoveModalOpen(false)}>Cancel</Button>
+              <Button onClick={() => handleBulkMove(folders.find(f => f.name === folderSearch)?.id)}>Move</Button>
+            </div>
           </Card>
         </div>
       )}
 
+      {/* Rename QR Modal */}
+      {renameQrId && (
+        <div className="modal-backdrop">
+          <Card className="modal-content" style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h2>Rename QR Code</h2>
+              <Button variant="ghost" size="icon" onClick={() => setRenameQrId(null)}>
+                <X size={20} />
+              </Button>
+            </div>
+            <div className="modal-body" style={{ marginTop: '16px' }}>
+              <Input 
+                autoFocus 
+                value={renameInput} 
+                onChange={e => setRenameInput(e.target.value)} 
+                placeholder="Enter new name..."
+                onKeyDown={e => { if (e.key === 'Enter') handleRenameQr(renameQrId); }}
+              />
+            </div>
+            <div className="modal-footer" style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <Button variant="ghost" onClick={() => setRenameQrId(null)}>Cancel</Button>
+              <Button onClick={() => handleRenameQr(renameQrId)}>Save Name</Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* View QR Modal */}
+      {viewQrId && (
+        <div className="modal-backdrop">
+          <Card className="modal-content" style={{ maxWidth: '400px', padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 600 }}>{qrCodesData.find(q => q.id === viewQrId)?.name}</h2>
+              <Button variant="ghost" size="icon" onClick={() => setViewQrId(null)}>
+                <X size={20} />
+              </Button>
+            </div>
+            
+            <div style={{ padding: '40px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'var(--bg-secondary)' }}>
+              <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '16px', boxShadow: 'var(--shadow-md)' }}>
+                <QRCodeSVG 
+                  value={qrCodesData.find(q => q.id === viewQrId)?.url || ''} 
+                  size={200}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+              <p style={{ marginTop: '24px', color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center' }}>
+                Scan this code to test your destination.
+              </p>
+            </div>
+            
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-light)', display: 'flex', gap: '12px' }}>
+              <Button 
+                variant="outline" 
+                style={{ flex: 1 }} 
+                onClick={() => {
+                  navigator.clipboard.writeText(qrCodesData.find(q => q.id === viewQrId)?.url || '');
+                  alert('Link copied to clipboard!');
+                }}
+              >
+                <Download size={16} style={{ marginRight: '8px' }} /> Copy Link
+              </Button>
+              <Button style={{ flex: 1 }} onClick={() => navigate(`/builder?edit=${viewQrId}`)}>
+                <Edit2 size={16} style={{ marginRight: '8px' }} /> Edit Content
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
