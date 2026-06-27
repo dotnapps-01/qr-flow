@@ -42,6 +42,7 @@ import {
   Edit2,
   Download
 } from 'lucide-react';
+import { QrDetailsDrawer } from '../components/QrDetailsDrawer';
 import './Dashboard.css';
 
 type Tab = 'All' | 'Static' | 'Dynamic' | 'Favorites' | 'Scheduled';
@@ -88,6 +89,7 @@ export const Dashboard: React.FC = () => {
   const [viewQrId, setViewQrId] = useState<string | null>(null);
   const [renameQrId, setRenameQrId] = useState<string | null>(null);
   const [renameInput, setRenameInput] = useState('');
+  const [selectedDetailsQrId, setSelectedDetailsQrId] = useState<string | null>(null);
 
   // Selection Handlers
   const toggleSelection = (qrId: string) => {
@@ -723,8 +725,8 @@ export const Dashboard: React.FC = () => {
             
             <div className="data-table-body">
               {paginatedData.map(qr => (
-                <div key={qr.id} className={`data-table-row ${selectedQrCodes.includes(qr.id) ? 'selected-row' : ''}`} style={{ gridTemplateColumns: showVisits ? '40px 3fr 1fr 1.5fr 1.5fr 1fr 1fr 40px' : '40px 3fr 1fr 1.5fr 1.5fr 1fr 40px' }}>
-                  <div className="col-checkbox">
+                <div key={qr.id} className={`data-table-row ${selectedQrCodes.includes(qr.id) ? 'selected-row' : ''}`} style={{ gridTemplateColumns: showVisits ? '40px 3fr 1fr 1.5fr 1.5fr 1fr 1fr 40px' : '40px 3fr 1fr 1.5fr 1.5fr 1fr 40px' }} onClick={() => setSelectedDetailsQrId(qr.id)}>
+                  <div className="col-checkbox" onClick={e => e.stopPropagation()}>
                     <input 
                       type="checkbox" 
                       className="custom-checkbox" 
@@ -768,7 +770,7 @@ export const Dashboard: React.FC = () => {
         ) : (
           <div className="data-grid">
             {paginatedData.map(qr => (
-              <Card key={qr.id} className={`qr-grid-card shadow-sm border-light ${selectedQrCodes.includes(qr.id) ? 'selected-card' : ''}`} style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', cursor: 'pointer' }} onClick={() => toggleSelection(qr.id)}>
+              <Card key={qr.id} className={`qr-grid-card shadow-sm border-light ${selectedQrCodes.includes(qr.id) ? 'selected-card' : ''}`} style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', cursor: 'pointer' }} onClick={() => setSelectedDetailsQrId(qr.id)}>
                 <div className="qr-grid-card-header">
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
                     <div onClick={(e) => e.stopPropagation()}>
@@ -968,6 +970,13 @@ export const Dashboard: React.FC = () => {
           </Card>
         </div>
       )}
+
+      {/* QR Details Drawer */}
+      <QrDetailsDrawer 
+        qr={qrCodesData.find(q => q.id === selectedDetailsQrId) || null} 
+        isOpen={!!selectedDetailsQrId} 
+        onClose={() => setSelectedDetailsQrId(null)} 
+      />
     </div>
   );
 };
