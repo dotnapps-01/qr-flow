@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Palette, Maximize, Eye, Image as ImageIcon, Info } from 'lucide-react';
+import { ChevronDown, Palette, Maximize, Eye, Image as ImageIcon, Info, Upload } from 'lucide-react';
 import { FaWhatsapp, FaYoutube, FaInstagram, FaFacebook, FaTelegramPlane, FaMapMarkerAlt, FaEnvelope, FaWifi, FaPaypal, FaBitcoin } from 'react-icons/fa';
 import './QrDesign.css';
 
@@ -57,9 +57,9 @@ export const QrDesign: React.FC<QrDesignProps> = ({ design, onChange }) => {
     );
   };
 
-  const dummyStyles = Array.from({ length: 14 }).map((_, i) => `style-${i}`);
-  const dummyCorners = Array.from({ length: 14 }).map((_, i) => `corner-${i}`);
-  const dummyCenters = Array.from({ length: 11 }).map((_, i) => `center-${i}`);
+  const dotsStyles = ['square', 'dots', 'rounded', 'extra-rounded', 'classy', 'classy-rounded'];
+  const cornerStyles = ['square', 'dot', 'extra-rounded'];
+  const centerStyles = ['square', 'dot'];
 
   const predefinedLogos = [
     { id: 'whatsapp', icon: <FaWhatsapp color="#25D366" />, bg: '#fff' },
@@ -69,9 +69,17 @@ export const QrDesign: React.FC<QrDesignProps> = ({ design, onChange }) => {
     { id: 'location', icon: <FaMapMarkerAlt color="#EA4335" />, bg: '#fff' },
     { id: 'wifi', icon: <FaWifi color="#111" />, bg: '#fff' },
     { id: 'mail', icon: <FaEnvelope color="#FBBC05" />, bg: '#fff' },
-    { id: 'paypal', icon: <FaPaypal color="#00457C" />, bg: '#fff' },
-    { id: 'bitcoin', icon: <FaBitcoin color="#F7931A" />, bg: '#fff' },
+    { id: 'paypal', icon: <FaPaypal color="#00457C" />, bg: '#fff', url: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg' },
+    { id: 'bitcoin', icon: <FaBitcoin color="#F7931A" />, bg: '#fff', url: 'https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg' },
   ];
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      updateDesign('logo', url);
+    }
+  };
 
   return (
     <div className="qr-design-container">
@@ -84,14 +92,14 @@ export const QrDesign: React.FC<QrDesignProps> = ({ design, onChange }) => {
         desc="Customize the central area of the QR code by combining shapes and colors."
       >
         <div className="design-grid">
-          {dummyStyles.map((style, idx) => (
+          {dotsStyles.map((style) => (
             <div 
-              key={idx} 
-              className={`design-grid-item ${design.patternStyle === style || (idx===0 && design.patternStyle==='squares') ? 'active' : ''}`}
+              key={style} 
+              className={`design-grid-item ${design.patternStyle === style ? 'active' : ''}`}
               onClick={() => updateDesign('patternStyle', style)}
             >
               <div className="pattern-visual" style={{ 
-                borderRadius: idx === 1 ? '50%' : (idx % 3 === 0 ? '4px' : '0') 
+                borderRadius: style === 'dots' || style === 'rounded' ? '50%' : (style === 'classy' || style === 'classy-rounded' ? '12px' : '0') 
               }}></div>
             </div>
           ))}
@@ -138,26 +146,26 @@ export const QrDesign: React.FC<QrDesignProps> = ({ design, onChange }) => {
       >
         <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Border style</div>
         <div className="design-grid" style={{ marginBottom: '16px' }}>
-          {dummyCorners.map((corner, idx) => (
+          {cornerStyles.map((corner) => (
             <div 
-              key={idx} 
-              className={`design-grid-item ${design.cornerBorderStyle === corner || (idx===0 && design.cornerBorderStyle==='square') ? 'active' : ''}`}
+              key={corner} 
+              className={`design-grid-item ${design.cornerBorderStyle === corner ? 'active' : ''}`}
               onClick={() => updateDesign('cornerBorderStyle', corner)}
             >
-              <div className={`corner-visual ${idx % 2 !== 0 ? 'corner-rounded' : 'corner-square'}`}></div>
+              <div className={`corner-visual ${corner === 'dot' ? 'corner-circle' : (corner === 'extra-rounded' ? 'corner-rounded' : 'corner-square')}`}></div>
             </div>
           ))}
         </div>
 
         <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Center style</div>
         <div className="design-grid">
-          {dummyCenters.map((center, idx) => (
+          {centerStyles.map((center) => (
             <div 
-              key={idx} 
-              className={`design-grid-item ${design.cornerCenterStyle === center || (idx===0 && design.cornerCenterStyle==='square') ? 'active' : ''}`}
+              key={center} 
+              className={`design-grid-item ${design.cornerCenterStyle === center ? 'active' : ''}`}
               onClick={() => updateDesign('cornerCenterStyle', center)}
             >
-               <div className={`center-visual ${idx % 2 !== 0 ? 'center-circle' : 'center-square'}`}></div>
+               <div className={`center-visual ${center === 'dot' ? 'center-circle' : 'center-square'}`}></div>
             </div>
           ))}
         </div>
@@ -213,28 +221,35 @@ export const QrDesign: React.FC<QrDesignProps> = ({ design, onChange }) => {
           {predefinedLogos.map(logo => (
             <div 
               key={logo.id} 
-              className={`logo-item ${design.logo === logo.id ? 'active' : ''}`}
+              className={`logo-item ${design.logo === logo.url ? 'active' : ''}`}
               style={{ backgroundColor: logo.bg }}
-              onClick={() => updateDesign('logo', logo.id)}
+              onClick={() => updateDesign('logo', logo.url)}
             >
               {logo.icon}
             </div>
           ))}
         </div>
         
-        <div style={{ 
+        <label style={{ 
           marginTop: '16px', 
           border: '1px dashed var(--border-color)', 
           padding: '16px', 
           borderRadius: '8px', 
-          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
           cursor: 'pointer',
           color: 'var(--text-primary)',
           fontWeight: 500,
           backgroundColor: 'var(--bg-secondary)'
         }}>
-          Upload your logo <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '12px' }}>(JPG, JPEG, or PNG / 2MB max)</span>
-        </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Upload size={16} /> Upload your logo
+          </div>
+          <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '12px' }}>(JPG, JPEG, or PNG / 2MB max)</span>
+          <input type="file" accept="image/png, image/jpeg" style={{ display: 'none' }} onChange={handleLogoUpload} />
+        </label>
       </Accordion>
 
     </div>

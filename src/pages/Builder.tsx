@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import React, { useState, useEffect, useRef } from 'react';
+import QRCodeStyling from 'qr-code-styling';
 import { FaWhatsapp, FaYoutube, FaInstagram, FaFacebook, FaTelegramPlane } from 'react-icons/fa';
 import { QrForms } from '../components/builder/QrForms';
 import { Button } from '../components/ui/Button';
@@ -71,6 +71,18 @@ export const Builder: React.FC = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [qrData, setQrData] = useState<any>({});
+  const qrRef = useRef<HTMLDivElement>(null);
+  
+  const [qrCode] = useState(() => new QRCodeStyling({
+    width: 200,
+    height: 200,
+    type: 'svg',
+    margin: 10,
+    imageOptions: {
+      crossOrigin: 'anonymous',
+      margin: 5,
+    }
+  }));
   
   const [qrDesign, setQrDesign] = useState<QrDesignState>({
     patternStyle: 'squares',
@@ -121,6 +133,38 @@ export const Builder: React.FC = () => {
   };
 
   const qrString = generateQrString();
+
+  useEffect(() => {
+    if (qrRef.current) {
+      qrRef.current.innerHTML = '';
+      qrCode.append(qrRef.current);
+    }
+  }, [qrCode, activeStep]);
+
+  useEffect(() => {
+    qrCode.update({
+      data: qrString,
+      qrOptions: {
+        errorCorrectionLevel: qrDesign.correctionLevel as any
+      },
+      dotsOptions: {
+        color: qrDesign.fgColor,
+        type: qrDesign.patternStyle as any
+      },
+      backgroundOptions: {
+        color: qrDesign.bgColor,
+      },
+      cornersSquareOptions: {
+        color: qrDesign.fgColor,
+        type: qrDesign.cornerBorderStyle as any
+      },
+      cornersDotOptions: {
+        color: qrDesign.fgColor,
+        type: qrDesign.cornerCenterStyle as any
+      },
+      image: qrDesign.logo || undefined
+    });
+  }, [qrCode, qrString, qrDesign]);
 
   return (
     <div className="builder-layout animate-fade-in">
@@ -313,14 +357,8 @@ export const Builder: React.FC = () => {
               <div className="phone-screen">
                 <div className="phone-notch"></div>
                 {activeStep >= 2 && Object.keys(qrData).length > 0 ? (
-                  <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow-md)' }}>
-                     <QRCodeSVG 
-                       value={qrString} 
-                       size={160} 
-                       level={qrDesign.correctionLevel} 
-                       fgColor={qrDesign.fgColor}
-                       bgColor={qrDesign.bgColor}
-                     />
+                  <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                     <div ref={qrRef} />
                   </div>
                 ) : (
                   <div className="qr-placeholder">
