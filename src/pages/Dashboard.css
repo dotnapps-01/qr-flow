@@ -621,6 +621,19 @@
     flex-wrap: wrap;
   }
   .data-table-header, .data-table-row {
-     display: none; /* simple mobile fallback, real app would use grid layout adjustments */
+     grid-template-columns: 40px 1fr auto !important;
+     padding: var(--space-2) !important;
+  }
+  .col-type, .col-created, .col-edited, .col-state {
+     display: none !important;
+  }
+  .qr-name-info {
+     overflow: hidden;
+  }
+  .qr-name-title {
+     font-size: 14px;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
   }
 }

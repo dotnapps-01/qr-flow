@@ -114,7 +114,7 @@ export const Builder: React.FC = () => {
     <div className="builder-layout animate-fade-in">
       {/* Left Configuration Panel */}
       <div className="builder-config">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-8)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--border-light)' }}>
+        <div className="builder-header-row">
           <div className="builder-steps" style={{ paddingBottom: 0, borderBottom: 'none' }}>
             <div className={`step ${activeStep >= 1 ? 'step-active' : ''}`} onClick={() => setActiveStep(1)} style={{ cursor: 'pointer' }}>
               <div className="step-number">1</div>

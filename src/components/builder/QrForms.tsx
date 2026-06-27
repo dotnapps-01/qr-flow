@@ -150,7 +150,7 @@ export const QrForms: React.FC<QrFormsProps> = ({ typeId, data, onChange }) => {
       );
     case 'vcard':
       return (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: 'var(--space-4)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>First Name</label>
             <Input placeholder="John" value={data.firstName || ''} onChange={e => handleChange('firstName', e.target.value)} />
@@ -183,7 +183,7 @@ export const QrForms: React.FC<QrFormsProps> = ({ typeId, data, onChange }) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>Location Address</label>
           <Input placeholder="1600 Amphitheatre Parkway, Mountain View, CA" value={data.address || ''} onChange={e => handleChange('address', e.target.value)} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', marginTop: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: 'var(--space-4)', marginTop: '8px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--text-muted)' }}>Latitude (Optional)</label>
               <Input placeholder="37.422" value={data.lat || ''} onChange={e => handleChange('lat', e.target.value)} />
