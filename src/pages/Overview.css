@@ -297,18 +297,24 @@
     grid-row: span 1;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     order: 2;
+    padding: var(--space-4);
   }
   
   .bento-kpi-scans > div:first-child {
     display: flex;
-    align-items: center;
-    gap: var(--space-3);
+    flex-direction: column;
+    justify-content: flex-start;
   }
   
   .bento-kpi-scans .bento-kpi-value {
     font-size: 28px;
-    margin-top: 0;
+    margin-top: 4px;
+  }
+  
+  .bento-kpi-scans > div:last-child {
+    margin-top: 0 !important;
   }
 
   .bento-kpi-total {
@@ -318,25 +324,24 @@
     padding: var(--space-3);
   }
   
-  .bento-kpi-total .bento-kpi-header {
+  .bento-kpi-total .bento-kpi-header, .bento-kpi-active .bento-kpi-header {
     gap: 8px;
+    margin-bottom: var(--space-2);
   }
 
   .bento-kpi-active {
     grid-column: span 1;
     grid-row: span 1;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
     order: 4;
     padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
   }
   
-  .bento-kpi-active .bento-kpi-value {
-    font-size: 28px;
-  }
-  .bento-kpi-total .bento-kpi-value {
+  .bento-kpi-active .bento-kpi-value, .bento-kpi-total .bento-kpi-value {
     font-size: 28px;
   }
 

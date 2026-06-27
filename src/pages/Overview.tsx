@@ -206,13 +206,13 @@ export const Overview: React.FC = () => {
 
         {/* KPI 3: Active QRs */}
         <div className="bento-item bento-kpi-active">
-          <div className="bento-kpi-header" style={{ justifyContent: 'center' }}>
+          <div className="bento-kpi-header">
             <div className="bento-icon-box bg-glass-warning">
               <Zap size={20} />
             </div>
+            <span className="bento-kpi-label">Active Codes</span>
           </div>
           <span className="bento-kpi-value">{stats.active}</span>
-          <span className="bento-kpi-label" style={{ marginTop: '8px' }}>Active Codes</span>
         </div>
 
         {/* Recent QRs */}
