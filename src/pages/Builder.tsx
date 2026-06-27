@@ -80,6 +80,7 @@ export const Builder: React.FC = () => {
   const [dynamicId, setDynamicId] = useState<string>('');
   const qrRef = useRef<HTMLDivElement>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const { user, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   
@@ -212,7 +213,7 @@ export const Builder: React.FC = () => {
           localStorage.setItem('demo_qrs', JSON.stringify(saved));
         }
         if (redirect) {
-           navigate('/projects');
+           setShowSuccessModal(true);
         }
         return true;
       } catch (err) {
@@ -519,6 +520,45 @@ export const Builder: React.FC = () => {
 
               <div style={{ textAlign: 'center', fontSize: '14px' }}>
                 or <a href="#" onClick={(e) => { e.preventDefault(); navigate('/signup'); }} style={{ color: 'var(--primary-btn-bg)', fontWeight: 600, textDecoration: 'none' }}>sign up with email</a>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="modal-backdrop" style={{ zIndex: 100 }}>
+          <Card className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <div className="modal-body" style={{ padding: '32px 24px' }}>
+              <div style={{ width: '64px', height: '64px', backgroundColor: 'rgba(34, 197, 94, 0.1)', color: 'var(--success)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px' }}>Saved Successfully!</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>
+                Your dynamic QR code has been securely saved to your account. You can track scans and manage it from your dashboard.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Button 
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    navigate('/');
+                  }} 
+                  style={{ width: '100%' }}
+                >
+                  Go to Dashboard
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowSuccessModal(false)} 
+                  style={{ width: '100%' }}
+                >
+                  Keep Editing
+                </Button>
               </div>
             </div>
           </Card>
