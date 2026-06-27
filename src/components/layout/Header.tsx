@@ -15,11 +15,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <Menu className="header-icon" />
         </Button>
         
-        <div className="mobile-header-logo" style={{ alignItems: 'center', gap: '8px', marginRight: 'var(--space-4)' }}>
-          <img src="/logo.png" alt="QRFLOW Logo" style={{ width: '24px', height: '24px' }} />
+        <div className="mobile-header-logo" style={{ alignItems: 'center', gap: '10px', marginRight: 'var(--space-4)' }}>
+          <img src="/logo.png" alt="QRFLOW Logo" style={{ width: '28px', height: '28px' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontWeight: 800, fontSize: '14px', lineHeight: 1 }}>QRFLOW</span>
-            <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: 500 }}>By Dotn Apps</span>
+            <span style={{ fontWeight: 800, fontSize: '18px', lineHeight: 1, letterSpacing: '-0.5px' }}>QRFLOW</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500, marginTop: '2px' }}>By Dotn Apps</span>
           </div>
         </div>
 
