@@ -162,7 +162,12 @@ export const Builder: React.FC = () => {
         color: qrDesign.fgColor,
         type: qrDesign.cornerCenterStyle as any
       },
-      image: qrDesign.logo || ''
+      image: qrDesign.logo || '',
+      imageOptions: {
+        crossOrigin: 'anonymous',
+        margin: 5,
+        imageSize: 0.4
+      }
     });
   }, [qrCode, qrString, qrDesign]);
 
