@@ -7,9 +7,10 @@ import { useAuth } from '../../contexts/AuthContext';
 
 export interface HeaderProps {
   onMenuClick: () => void;
+  onSearchClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+export const Header: React.FC<HeaderProps> = ({ onMenuClick, onSearchClick }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -43,9 +44,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           </div>
         </div>
 
-        <div className="search-bar">
+        <div className="search-bar" onClick={onSearchClick} style={{ cursor: 'text' }}>
           <Search className="search-icon" />
-          <input type="text" placeholder="Search anything..." className="search-input" />
+          <input 
+            type="text" 
+            placeholder="Search anything..." 
+            className="search-input" 
+            readOnly
+            style={{ cursor: 'text' }}
+          />
           <div className="command-shortcut">
             <Command className="shortcut-icon" />
             <span>K</span>

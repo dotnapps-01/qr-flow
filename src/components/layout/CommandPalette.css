@@ -1,0 +1,164 @@
+.command-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12vh;
+  animation: fadeIn var(--transition-fast) forwards;
+}
+
+.command-modal {
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-light);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideDown var(--transition-fast) forwards;
+  margin: 0 var(--space-4);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.command-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  gap: var(--space-3);
+}
+
+.command-search-icon {
+  color: var(--text-muted);
+}
+
+.command-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: var(--text-lg);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.command-input::placeholder {
+  color: var(--text-muted);
+}
+
+.command-close {
+  padding: 4px 8px;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.command-close:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.command-body {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.command-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.command-section-title {
+  padding: var(--space-2) var(--space-3);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.command-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  color: var(--text-primary);
+}
+
+.command-item.selected {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.command-item-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.command-item-left svg {
+  color: var(--text-muted);
+}
+
+.command-item.selected .command-item-left svg {
+  color: var(--text-primary);
+}
+
+.command-item-right {
+  color: var(--text-muted);
+}
+
+.command-empty {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.command-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-light);
+  background-color: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.command-footer-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.command-footer-hint kbd {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-weight: 600;
+}
