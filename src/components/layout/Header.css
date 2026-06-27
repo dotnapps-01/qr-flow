@@ -142,11 +142,11 @@
     display: flex !important;
   }
   .mobile-header-logo img {
-    width: 36px !important;
-    height: 36px !important;
+    width: 44px !important;
+    height: 44px !important;
   }
   .mobile-header-logo span:first-child {
-    font-size: 18px !important;
+    font-size: 22px !important;
   }
   .search-bar {
     display: none !important;
