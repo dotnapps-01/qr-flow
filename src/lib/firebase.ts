@@ -14,7 +14,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase only if we have real credentials, otherwise we'll mock it for the demo
-export const hasValidFirebaseConfig = firebaseConfig.apiKey !== "dummy-api-key";
+export const hasValidFirebaseConfig = 
+  firebaseConfig.apiKey && 
+  firebaseConfig.apiKey.length > 0 && 
+  firebaseConfig.apiKey !== "dummy-api-key" && 
+  firebaseConfig.apiKey !== "your-api-key";
 
 export const app = hasValidFirebaseConfig ? initializeApp(firebaseConfig) : null;
 export const auth = hasValidFirebaseConfig ? getAuth(app!) : null;
