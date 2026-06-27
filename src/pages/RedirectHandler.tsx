@@ -82,20 +82,26 @@ export const RedirectHandler: React.FC = () => {
 
         // Page Render Types (text, wifi, vcard)
         if (['text', 'wifi', 'vcard'].includes(qrType)) {
-          setPageData({ type: qrType, data: qrData });
+          const safeData = qrData || {};
+          setPageData({ type: qrType, data: safeData });
           setLoading(false);
           
           // Auto-download vcard
           if (qrType === 'vcard') {
-             const vcf = `BEGIN:VCARD\nVERSION:3.0\nN:${qrData.lastName || ''};${qrData.firstName || ''}\nFN:${qrData.firstName || ''} ${qrData.lastName || ''}\nORG:${qrData.company || ''}\nTEL:${qrData.countryCode || '+91'}${qrData.phone || ''}\nEMAIL:${qrData.email || ''}\nEND:VCARD`;
-             const blob = new Blob([vcf], { type: 'text/vcard' });
-             const url = URL.createObjectURL(blob);
-             const a = document.createElement('a');
-             a.href = url;
-             a.download = `${qrData.firstName || 'contact'}.vcf`;
-             document.body.appendChild(a);
-             a.click();
-             document.body.removeChild(a);
+             try {
+               const vcf = `BEGIN:VCARD\nVERSION:3.0\nN:${safeData.lastName || ''};${safeData.firstName || ''}\nFN:${safeData.firstName || ''} ${safeData.lastName || ''}\nORG:${safeData.company || ''}\nTEL:${safeData.countryCode || '+91'}${safeData.phone || ''}\nEMAIL:${safeData.email || ''}\nEND:VCARD`;
+               const blob = new Blob([vcf], { type: 'text/vcard' });
+               const url = URL.createObjectURL(blob);
+               const a = document.createElement('a');
+               a.href = url;
+               a.download = `${safeData.firstName || 'contact'}.vcf`;
+               document.body.appendChild(a);
+               a.click();
+               document.body.removeChild(a);
+             } catch (downloadErr) {
+               console.warn("Auto-download failed:", downloadErr);
+               // Do not set global error, just let the page render so user can click manually.
+             }
           }
           return;
         }
@@ -202,7 +208,17 @@ export const RedirectHandler: React.FC = () => {
               )}
             </div>
             
-            <Button style={{ width: '100%' }} onClick={() => window.location.reload()}>
+            <Button style={{ width: '100%' }} onClick={() => {
+              const vcf = `BEGIN:VCARD\nVERSION:3.0\nN:${safeData.lastName || ''};${safeData.firstName || ''}\nFN:${safeData.firstName || ''} ${safeData.lastName || ''}\nORG:${safeData.company || ''}\nTEL:${safeData.countryCode || '+91'}${safeData.phone || ''}\nEMAIL:${safeData.email || ''}\nEND:VCARD`;
+              const blob = new Blob([vcf], { type: 'text/vcard' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${safeData.firstName || 'contact'}.vcf`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }}>
               <Download size={18} style={{ marginRight: '8px' }} /> Save Contact Again
             </Button>
           </div>
