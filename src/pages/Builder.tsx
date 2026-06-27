@@ -5,6 +5,7 @@ import { QrForms } from '../components/builder/QrForms';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { QrDesign, type QrDesignState } from '../components/builder/QrDesign';
 import { 
   Globe, 
   FileText, 
@@ -70,6 +71,17 @@ export const Builder: React.FC = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [qrData, setQrData] = useState<any>({});
+  
+  const [qrDesign, setQrDesign] = useState<QrDesignState>({
+    patternStyle: 'squares',
+    fgColor: '#000000',
+    bgColor: '#ffffff',
+    cornerBorderStyle: 'square',
+    cornerCenterStyle: 'square',
+    cornerFgColor: '#000000',
+    correctionLevel: 'H',
+    logo: null
+  });
 
   const staticTypeIds = ['text', 'vcard', 'url', 'whatsapp', 'wifi', 'email', 'sms'];
 
@@ -269,12 +281,17 @@ export const Builder: React.FC = () => {
           {activeStep === 3 && (
             <div className="animate-fade-in">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-                <h1 className="builder-title" style={{ margin: 0 }}>QR Design</h1>
+                <div>
+                  <h1 className="builder-title" style={{ margin: 0 }}>QR Design</h1>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Customize the style, colors, and logo of your QR code</p>
+                </div>
                 <Button variant="outline" onClick={() => setActiveStep(2)}>Back to Content</Button>
               </div>
-              <div style={{ padding: 'var(--space-8)', textAlign: 'center', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
-                 <p style={{ color: 'var(--text-muted)' }}>Design customization options (colors, frames, logos) will appear here.</p>
+              
+              <div className="form-container">
+                 <QrDesign design={qrDesign} onChange={setQrDesign} />
               </div>
+              
               <div style={{ marginTop: 'var(--space-6)', display: 'flex', justifyContent: 'flex-end' }}>
                 <Button>Finish & Download</Button>
               </div>
@@ -295,16 +312,22 @@ export const Builder: React.FC = () => {
             <div className="phone-mockup">
               <div className="phone-screen">
                 <div className="phone-notch"></div>
-                {activeStep === 2 && Object.keys(qrData).length > 0 ? (
+                {activeStep >= 2 && Object.keys(qrData).length > 0 ? (
                   <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow-md)' }}>
-                     <QRCodeSVG value={qrString} size={160} level="H" />
+                     <QRCodeSVG 
+                       value={qrString} 
+                       size={160} 
+                       level={qrDesign.correctionLevel} 
+                       fgColor={qrDesign.fgColor}
+                       bgColor={qrDesign.bgColor}
+                     />
                   </div>
                 ) : (
                   <div className="qr-placeholder">
                     <div className="qr-placeholder-icon"></div>
                   </div>
                 )}
-                {activeStep === 2 && Object.keys(qrData).length > 0 && (
+                {activeStep >= 2 && Object.keys(qrData).length > 0 && (
                    <div style={{ marginTop: '20px', padding: '16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', fontSize: '12px', wordBreak: 'break-all', width: '100%', border: '1px solid var(--border-color)' }}>
                       <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--text-primary)' }}>Raw Data Preview</h3>
                       {Object.entries(qrData).map(([k, v]) => (
