@@ -37,7 +37,7 @@ export const RedirectHandler: React.FC = () => {
         }
 
         if (!qrType) {
-          setError('QR Code not found or has been disabled.');
+          setError('QR Code not found. If you just created this, please make sure to click "Save to Dashboard" on your computer before scanning.');
           setLoading(false);
           return;
         }
