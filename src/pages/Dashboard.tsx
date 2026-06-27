@@ -327,7 +327,7 @@ export const Dashboard: React.FC = () => {
             const data = doc.data();
             fetchedData.push({
               id: doc.id,
-              name: `${data.type} QR Code`,
+              name: data.name || `${data.type} QR Code`,
               url: `${window.location.origin}/q/${doc.id}`,
               type: 'Dynamic',
               scans: data.scans || 0,
@@ -355,7 +355,7 @@ export const Dashboard: React.FC = () => {
             if (data.userId === user.id) {
                fetchedData.push({
                   id: id,
-                  name: `${data.type.charAt(0).toUpperCase() + data.type.slice(1)} QR Code`,
+                  name: data.name || `${data.type.charAt(0).toUpperCase() + data.type.slice(1)} QR Code`,
                   url: `${window.location.origin}/q/${id}`,
                   type: 'Dynamic',
                   scans: data.scans || 0,

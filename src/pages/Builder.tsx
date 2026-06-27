@@ -72,6 +72,7 @@ export const Builder: React.FC = () => {
   
   const [activeStep, setActiveStep] = useState(1);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [qrName, setQrName] = useState<string>('');
   const [qrData, setQrData] = useState<any>({});
   const [dynamicId, setDynamicId] = useState<string>('');
   const qrRef = useRef<HTMLDivElement>(null);
@@ -198,6 +199,7 @@ export const Builder: React.FC = () => {
         if (db) {
           await setDoc(doc(db, 'qr_codes', dynamicId), {
             userId: user.id,
+            name: qrName.trim() || 'Untitled QR Code',
             type: selectedType,
             data: qrData,
             createdAt: new Date().toISOString()
@@ -206,6 +208,7 @@ export const Builder: React.FC = () => {
           // Mock saving to localStorage for demo
           const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
           saved[dynamicId] = { 
+            name: qrName.trim() || 'Untitled QR Code',
             type: selectedType, 
             data: qrData, 
             userId: user.id, 
@@ -232,6 +235,7 @@ export const Builder: React.FC = () => {
       setQrCategory(null);
       setActiveStep(1);
       setSelectedType(null);
+      setQrName('');
       setQrData({});
       setDynamicId('');
     }
@@ -394,6 +398,19 @@ export const Builder: React.FC = () => {
               </div>
               
               <div className="form-container" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
+                <div style={{ marginBottom: 'var(--space-6)' }}>
+                  <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: '8px' }}>QR Code Name (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={qrName} 
+                    onChange={e => setQrName(e.target.value)} 
+                    placeholder="e.g. Summer Campaign"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', fontSize: '15px', outline: 'none' }}
+                  />
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>This name will only appear in your dashboard to help you organize.</p>
+                </div>
+                <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '0 -var(--space-6) var(--space-6)' }} />
+                
                 <QrForms typeId={selectedType} data={qrData} onChange={setQrData} />
               </div>
 
