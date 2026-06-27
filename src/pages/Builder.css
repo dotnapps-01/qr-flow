@@ -185,7 +185,7 @@
   flex-direction: column;
   align-items: center;
   position: sticky;
-  top: var(--space-4);
+  top: 88px;
   align-self: flex-start;
   flex-shrink: 0;
 }
