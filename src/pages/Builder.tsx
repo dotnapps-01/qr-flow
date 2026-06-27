@@ -175,7 +175,8 @@ export const Builder: React.FC = () => {
                 setQrData(data.data || {});
                 setDynamicId(editId);
                 setQrCategory('dynamic');
-                setActiveStep(2);
+                const targetStep = searchParams.get('step') ? parseInt(searchParams.get('step')!, 10) : 2;
+                setActiveStep(targetStep >= 1 && targetStep <= 3 ? targetStep : 2);
              }
           } catch(err) {
              console.error('Failed to fetch QR for edit', err);
@@ -189,7 +190,8 @@ export const Builder: React.FC = () => {
               setQrData(data.data || {});
               setDynamicId(editId);
               setQrCategory('dynamic');
-              setActiveStep(2);
+              const targetStep = searchParams.get('step') ? parseInt(searchParams.get('step')!, 10) : 2;
+              setActiveStep(targetStep >= 1 && targetStep <= 3 ? targetStep : 2);
            }
         }
       };
