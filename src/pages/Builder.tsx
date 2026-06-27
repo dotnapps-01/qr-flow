@@ -34,6 +34,7 @@ import {
   ChevronRight,
   MessageSquare,
   Download,
+  X,
   type LucideIcon
 } from 'lucide-react';
 import './Builder.css';
