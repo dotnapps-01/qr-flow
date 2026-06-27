@@ -17,7 +17,7 @@ export interface QrCode {
   isScheduled?: boolean;
   folderId?: string;
 }
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -99,70 +99,177 @@ export const Dashboard: React.FC = () => {
 
   const clearSelection = () => setSelectedQrCodes([]);
 
-  const handleCreateFolder = () => {
-    if (newFolderName.trim()) {
+  const handleCreateFolder = async () => {
+    if (newFolderName.trim() && user && db) {
+      const folderName = newFolderName.trim();
+      const tempId = Date.now().toString();
+      setFolders([...folders, { id: tempId, name: folderName }]);
+      setNewFolderName('');
+      setIsCreatingFolder(false);
+
+      try {
+        const docRef = await addDoc(collection(db, 'folders'), {
+          name: folderName,
+          userId: user.id,
+          createdAt: new Date().toISOString()
+        });
+        setFolders(prev => prev.map(f => f.id === tempId ? { ...f, id: docRef.id } : f));
+      } catch (err) {
+        console.error("Failed to create folder", err);
+        setFolders(prev => prev.filter(f => f.id !== tempId));
+      }
+    } else if (newFolderName.trim() && !db) {
+       // Demo mode
       setFolders([...folders, { id: Date.now().toString(), name: newFolderName.trim() }]);
       setNewFolderName('');
       setIsCreatingFolder(false);
     }
   };
 
-  const handleDeleteFolder = (folderId: string) => {
+  const handleDeleteFolder = async (folderId: string) => {
     setQrCodesData(prev => prev.map(qr => qr.folderId === folderId ? { ...qr, folderId: undefined } : qr));
     setFolders(prev => prev.filter(f => f.id !== folderId));
     if (selectedFolderId === folderId) setSelectedFolderId(null);
+
+    if (db) {
+       try {
+         await deleteDoc(doc(db, 'folders', folderId));
+         // Optional: Batch update to remove folderId from QRs
+         const batch = writeBatch(db);
+         qrCodesData.filter(qr => qr.folderId === folderId).forEach(qr => {
+            batch.update(doc(db, 'qr_codes', qr.id), { folderId: null });
+         });
+         await batch.commit();
+       } catch(err) {
+         console.error("Failed to delete folder", err);
+       }
+    }
   };
 
-  const saveRenameFolder = (folderId: string) => {
-    if (editFolderName.trim()) {
-      setFolders(prev => prev.map(f => f.id === folderId ? { ...f, name: editFolderName.trim() } : f));
+  const saveRenameFolder = async (folderId: string) => {
+    const newName = editFolderName.trim();
+    if (newName) {
+      setFolders(prev => prev.map(f => f.id === folderId ? { ...f, name: newName } : f));
+      if (db) {
+         try {
+            await updateDoc(doc(db, 'folders', folderId), { name: newName });
+         } catch(err) {
+            console.error("Failed to rename folder", err);
+         }
+      }
     }
     setEditingFolderId(null);
   };
 
-  const handleAddQrToFolder = (qrId: string) => {
+  const handleAddQrToFolder = async (qrId: string) => {
     if (selectedFolderId) {
       setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, folderId: selectedFolderId } : qr));
+      if (db) {
+         try {
+            await updateDoc(doc(db, 'qr_codes', qrId), { folderId: selectedFolderId });
+         } catch (err) {
+            console.error("Failed to update QR folder", err);
+         }
+      }
     }
   };
 
-  const handleRemoveQrFromFolder = (qrId: string) => {
+  const handleRemoveQrFromFolder = async (qrId: string) => {
     setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, folderId: undefined } : qr));
+    if (db) {
+       try {
+          await updateDoc(doc(db, 'qr_codes', qrId), { folderId: null });
+       } catch (err) {
+          console.error("Failed to remove QR from folder", err);
+       }
+    }
   };
 
-  const toggleFavorite = (qrId: string) => {
-    setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, isFavorite: !qr.isFavorite } : qr));
+  const toggleFavorite = async (qrId: string) => {
+    const qr = qrCodesData.find(q => q.id === qrId);
+    if (!qr) return;
+    const newFav = !qr.isFavorite;
+    setQrCodesData(prev => prev.map(qr => qr.id === qrId ? { ...qr, isFavorite: newFav } : qr));
+    
+    if (db) {
+       try {
+          await updateDoc(doc(db, 'qr_codes', qrId), { isFavorite: newFav });
+       } catch (err) {
+          console.error("Failed to update favorite", err);
+       }
+    }
   };
 
   // Bulk Handlers
-  const handleBulkDelete = () => {
-    setQrCodesData(prev => prev.filter(qr => !selectedQrCodes.includes(qr.id)));
+  const handleBulkDelete = async () => {
+    const idsToDelete = [...selectedQrCodes];
+    setQrCodesData(prev => prev.filter(qr => !idsToDelete.includes(qr.id)));
     clearSelection();
+
+    if (db) {
+       try {
+         const batch = writeBatch(db);
+         idsToDelete.forEach(id => {
+            batch.delete(doc(db, 'qr_codes', id));
+         });
+         await batch.commit();
+       } catch(err) {
+         console.error("Failed to bulk delete", err);
+       }
+    }
   };
 
-  const handleBulkFavorite = () => {
-    const allSelectedAreFavorites = selectedQrCodes.every(id => {
+  const handleBulkFavorite = async () => {
+    const idsToUpdate = [...selectedQrCodes];
+    const allSelectedAreFavorites = idsToUpdate.every(id => {
       const qr = qrCodesData.find(q => q.id === id);
       return qr ? qr.isFavorite : false;
     });
+    
+    const newFavStatus = !allSelectedAreFavorites;
 
     setQrCodesData(prev => prev.map(qr => {
-      if (selectedQrCodes.includes(qr.id)) {
-        return { ...qr, isFavorite: !allSelectedAreFavorites };
+      if (idsToUpdate.includes(qr.id)) {
+        return { ...qr, isFavorite: newFavStatus };
       }
       return qr;
     }));
+
+    if (db) {
+       try {
+         const batch = writeBatch(db);
+         idsToUpdate.forEach(id => {
+            batch.update(doc(db, 'qr_codes', id), { isFavorite: newFavStatus });
+         });
+         await batch.commit();
+       } catch(err) {
+         console.error("Failed to bulk update favorites", err);
+       }
+    }
   };
 
-  const handleBulkMove = (folderId: string) => {
+  const handleBulkMove = async (folderId: string | undefined) => {
+    const idsToUpdate = [...selectedQrCodes];
     setQrCodesData(prev => prev.map(qr => {
-      if (selectedQrCodes.includes(qr.id)) {
+      if (idsToUpdate.includes(qr.id)) {
         return { ...qr, folderId };
       }
       return qr;
     }));
     setIsBulkMoveModalOpen(false);
     clearSelection();
+
+    if (db) {
+       try {
+         const batch = writeBatch(db);
+         idsToUpdate.forEach(id => {
+            batch.update(doc(db, 'qr_codes', id), { folderId: folderId || null });
+         });
+         await batch.commit();
+       } catch(err) {
+         console.error("Failed to bulk move", err);
+       }
+    }
   };
 
   // Derived Data
@@ -227,9 +334,19 @@ export const Dashboard: React.FC = () => {
               state: 'Active',
               createdAt: new Date(data.createdAt).toLocaleDateString(),
               editedAt: new Date(data.createdAt).toLocaleDateString(),
-              isFavorite: false,
+              isFavorite: data.isFavorite || false,
+              folderId: data.folderId || undefined,
             });
           });
+
+          // Fetch folders from live Firestore
+          const folderQuery = query(collection(db, 'folders'), where('userId', '==', user.id));
+          const folderSnapshot = await getDocs(folderQuery);
+          const fetchedFolders: {id: string, name: string}[] = [];
+          folderSnapshot.forEach((doc) => {
+            fetchedFolders.push({ id: doc.id, name: doc.data().name });
+          });
+          setFolders(fetchedFolders);
         } else {
           // Fetch from local demo storage
           const saved = JSON.parse(localStorage.getItem('demo_qrs') || '{}');
