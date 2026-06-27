@@ -45,7 +45,11 @@ export const RedirectHandler: React.FC = () => {
         // Direct Redirect Types
         const urlRedirects = ['url', 'custom-url', 'booking', 'youtube', 'instagram', 'facebook', 'telegram'];
         if (urlRedirects.includes(qrType)) {
-          window.location.href = qrData.url || 'https://dotnapps.com';
+          let finalUrl = qrData.url || 'https://dotnapps.com';
+          if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+            finalUrl = 'https://' + finalUrl;
+          }
+          window.location.href = finalUrl;
           return;
         }
 
