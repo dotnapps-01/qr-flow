@@ -121,7 +121,6 @@ export const QrDetailsDrawer: React.FC<QrDetailsDrawerProps> = ({ qr, isOpen, on
                  </div>
               </div>
               
-              <p className="analytics-hint">Upgrade to Pro to see detailed scan locations, devices, and time series data.</p>
             </div>
           )}
         </div>
