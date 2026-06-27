@@ -4,7 +4,19 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { mockQrCodes, type QrCode } from '../data/mockQrCodes';
+export interface QrCode {
+  id: string;
+  name: string;
+  url: string;
+  type: 'Dynamic' | 'Static';
+  scans: number;
+  state: 'Active' | 'Paused';
+  createdAt: string;
+  editedAt: string;
+  isFavorite?: boolean;
+  isScheduled?: boolean;
+  folderId?: string;
+}
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -193,7 +205,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchQrCodes = async () => {
       if (!user) {
-        setQrCodesData(mockQrCodes); // Show mock data if logged out for preview
+        setQrCodesData([]);
         return;
       }
       
