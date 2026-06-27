@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment, collection, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -40,6 +40,36 @@ export const RedirectHandler: React.FC = () => {
           setError('QR Code not found. If you just created this, please make sure to click "Save to Dashboard" on your computer before scanning.');
           setLoading(false);
           return;
+        }
+
+        // Record the scan in Firestore
+        if (db) {
+          try {
+            const docRef = doc(db, 'qr_codes', id);
+            // Increment total scans on the QR code doc
+            await updateDoc(docRef, {
+              scans: increment(1)
+            });
+
+            // Add a scan event for the chart
+            // Note: If you get permission errors here, update your Firebase rules
+            // to allow writing to the 'scan_events' collection.
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+               const ownerId = docSnap.data().userId;
+               if (ownerId) {
+                  await addDoc(collection(db, 'scan_events'), {
+                    qrId: id,
+                    userId: ownerId,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                  });
+               }
+            }
+          } catch (e) {
+            console.warn("Failed to record scan analytics:", e);
+            // Don't block the redirect if analytics fail
+          }
         }
 
         // Direct Redirect Types

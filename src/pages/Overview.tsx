@@ -10,22 +10,21 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import type { QrCode } from './Dashboard';
 import './Overview.css';
 
-// Dummy data for the chart since we don't have historical scan tracking yet
-const data = [
-  { name: 'Mon', scans: 400 },
-  { name: 'Tue', scans: 300 },
-  { name: 'Wed', scans: 550 },
-  { name: 'Thu', scans: 480 },
-  { name: 'Fri', scans: 700 },
-  { name: 'Sat', scans: 850 },
-  { name: 'Sun', scans: 950 },
-];
-
 export const Overview: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [recentQrs, setRecentQrs] = useState<QrCode[]>([]);
   const [stats, setStats] = useState({ total: 0, scans: 0, active: 0 });
+  
+  const [chartData, setChartData] = useState([
+    { name: 'Mon', scans: 0 },
+    { name: 'Tue', scans: 0 },
+    { name: 'Wed', scans: 0 },
+    { name: 'Thu', scans: 0 },
+    { name: 'Fri', scans: 0 },
+    { name: 'Sat', scans: 0 },
+    { name: 'Sun', scans: 0 },
+  ]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -65,6 +64,34 @@ export const Overview: React.FC = () => {
           // Sort by newest and take top 3
           qrs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
           setRecentQrs(qrs.slice(0, 3));
+
+          // Fetch Scan Events for the chart
+          const scansQuery = query(collection(db, 'scan_events'), where('userId', '==', user.id));
+          const scansSnapshot = await getDocs(scansQuery);
+          
+          // Generate last 7 days chart data
+          const last7Days = Array.from({length: 7}).map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+            return {
+              dateString: d.toISOString().split('T')[0],
+              name: d.toLocaleDateString('en-US', { weekday: 'short' }),
+              scans: 0
+            };
+          });
+
+          scansSnapshot.forEach((doc) => {
+             const scanData = doc.data();
+             if (scanData.timestamp) {
+               const scanDate = new Date(scanData.timestamp).toISOString().split('T')[0];
+               const dayData = last7Days.find(d => d.dateString === scanDate);
+               if (dayData) {
+                  dayData.scans += 1;
+               }
+             }
+          });
+
+          setChartData(last7Days);
           
         } else {
           // Demo fallback
@@ -164,7 +191,7 @@ export const Overview: React.FC = () => {
           </div>
           <div className="chart-wrapper" style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorScans" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="var(--primary-btn-bg)" stopOpacity={0.3}/>
