@@ -699,7 +699,7 @@ export const Dashboard: React.FC = () => {
           </Card>
         ) : viewMode === 'list' ? (
           <Card className="data-table-card">
-            <div className="data-table-header" style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr 40px' : '40px 2fr 1fr 1fr 1fr 1fr 40px' }}>
+            <div className="data-table-header" style={{ gridTemplateColumns: showVisits ? '40px 3fr 1fr 1.5fr 1.5fr 1fr 1fr 40px' : '40px 3fr 1fr 1.5fr 1.5fr 1fr 40px' }}>
               <div className="col-checkbox">
                 <input 
                   type="checkbox" 
@@ -723,7 +723,7 @@ export const Dashboard: React.FC = () => {
             
             <div className="data-table-body">
               {paginatedData.map(qr => (
-                <div key={qr.id} className={`data-table-row ${selectedQrCodes.includes(qr.id) ? 'selected-row' : ''}`} style={{ gridTemplateColumns: showVisits ? '40px 2fr 1fr 1fr 1fr 1fr 1fr 40px' : '40px 2fr 1fr 1fr 1fr 1fr 40px' }}>
+                <div key={qr.id} className={`data-table-row ${selectedQrCodes.includes(qr.id) ? 'selected-row' : ''}`} style={{ gridTemplateColumns: showVisits ? '40px 3fr 1fr 1.5fr 1.5fr 1fr 1fr 40px' : '40px 3fr 1fr 1.5fr 1.5fr 1fr 40px' }}>
                   <div className="col-checkbox">
                     <input 
                       type="checkbox" 
@@ -753,7 +753,7 @@ export const Dashboard: React.FC = () => {
                   {showVisits && <div className="col-scans" style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>{qr.scans.toLocaleString()}</div>}
                   <div className="dropdown-wrapper" onClick={e => e.stopPropagation()}>
                     <Button variant="ghost" size="icon" style={{color: 'var(--text-muted)'}}><MoreVertical size={16} /></Button>
-                    <div className="dropdown-menu narrow" style={{ right: 0, left: 'auto' }}>
+                    <div className="dropdown-menu" style={{ right: 0, left: 'auto' }}>
                        <button className="dropdown-item" onClick={() => setViewQrId(qr.id)}><Eye size={14} style={{marginRight: '8px', display: 'inline'}}/> View</button>
                        <button className="dropdown-item" onClick={() => { setRenameQrId(qr.id); setRenameInput(qr.name); }}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Rename</button>
                        <button className="dropdown-item" onClick={() => navigate(`/builder?edit=${qr.id}`)}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Edit Content</button>
@@ -790,7 +790,7 @@ export const Dashboard: React.FC = () => {
                     </button>
                     <div className="dropdown-wrapper" onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="icon" style={{color: 'var(--text-muted)'}}><MoreVertical size={16} /></Button>
-                      <div className="dropdown-menu narrow" style={{ right: 0, left: 'auto' }}>
+                      <div className="dropdown-menu" style={{ right: 0, left: 'auto' }}>
                          <button className="dropdown-item" onClick={() => setViewQrId(qr.id)}><Eye size={14} style={{marginRight: '8px', display: 'inline'}}/> View</button>
                          <button className="dropdown-item" onClick={() => { setRenameQrId(qr.id); setRenameInput(qr.name); }}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Rename</button>
                          <button className="dropdown-item" onClick={() => navigate(`/builder?edit=${qr.id}`)}><Edit2 size={14} style={{marginRight: '8px', display: 'inline'}}/> Edit Content</button>
