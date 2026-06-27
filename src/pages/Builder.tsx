@@ -29,6 +29,7 @@ import {
   ChevronDown,
   ChevronRight,
   MessageSquare,
+  Download,
   type LucideIcon
 } from 'lucide-react';
 import './Builder.css';
@@ -341,8 +342,27 @@ export const Builder: React.FC = () => {
                  <QrDesign design={qrDesign} onChange={setQrDesign} />
               </div>
               
-              <div style={{ marginTop: 'var(--space-6)', display: 'flex', justifyContent: 'flex-end' }}>
-                <Button>Finish & Download</Button>
+              <div style={{ marginTop: 'var(--space-6)', display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => qrCode.download({ name: 'qr-flow', extension: 'svg' })}
+                  leftIcon={<Download size={16} />}
+                >
+                  SVG
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => qrCode.download({ name: 'qr-flow', extension: 'jpeg' })}
+                  leftIcon={<Download size={16} />}
+                >
+                  JPEG
+                </Button>
+                <Button 
+                  onClick={() => qrCode.download({ name: 'qr-flow', extension: 'png' })}
+                  leftIcon={<Download size={16} />}
+                >
+                  Download PNG
+                </Button>
               </div>
             </div>
           )}
