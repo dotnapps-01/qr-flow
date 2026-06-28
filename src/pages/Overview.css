@@ -377,4 +377,6 @@
   display: inline-block;
   animation: wave 2.5s infinite;
   transform-origin: 70% 70%;
+  -webkit-text-fill-color: initial;
+  color: initial;
 }
