@@ -134,7 +134,7 @@ export const Overview: React.FC = () => {
     <div className="overview-container animate-fade-in">
       <header className="overview-header">
         <div className="overview-title-wrapper">
-          <h1 className="text-display">Welcome back, {user?.displayName?.split(' ')[0] || 'there'} 👋</h1>
+          <h1 className="text-display">Welcome back, {user?.displayName?.split(' ')[0] || 'there'} <span className="wave-animation">👋</span></h1>
           <p className="overview-subtitle">Here's what's happening with your QR codes today.</p>
         </div>
         <Button leftIcon={<Plus size={18} />} onClick={() => navigate('/builder')} className="btn-create-pulse">
