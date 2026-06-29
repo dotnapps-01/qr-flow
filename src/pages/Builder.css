@@ -370,13 +370,16 @@
     position: sticky;
     top: 64px;
     z-index: 40;
-    width: 100%;
-    margin: 0 0 var(--space-4) 0;
-    padding: 12px 0;
-    background-color: var(--bg-card); /* Solid background prevents text bleed */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-top: 0;
+    margin-bottom: var(--space-6);
+    padding: var(--space-3) 0;
+    background-color: var(--bg-card);
     border-bottom: 1px solid var(--border-light);
-    border-radius: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-radius: 0 0 24px 24px; /* Curved bottom corners */
+    box-shadow: 0 10px 20px -10px rgba(0,0,0,0.1);
     display: flex;
     justify-content: center;
   }
