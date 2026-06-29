@@ -473,6 +473,14 @@
   .builder-content {
     padding-bottom: 140px; /* Leave space for sticky footer to not cover the last setting */
   }
+  
+  /* Make dropdown menu open upwards in the sticky footer because it's at the bottom of the screen */
+  .builder-actions-footer .dropdown-menu {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+  }
 }
 
 @media (max-width: 768px) {
