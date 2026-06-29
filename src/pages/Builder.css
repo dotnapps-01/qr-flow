@@ -367,6 +367,10 @@
   .builder-layout {
     flex-direction: column;
     align-items: stretch;
+    gap: 0; /* Remove default gap to control spacing manually */
+  }
+  .builder-config {
+    margin-top: var(--space-6);
   }
   .builder-preview {
     width: 100%;
@@ -380,20 +384,21 @@
     position: sticky;
     top: 64px;
     z-index: 40;
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-    margin-top: 0;
+    width: calc(100% + 32px); /* Break out of 16px page padding */
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-top: -24px; /* Counteract page-container marginTop */
     margin-bottom: var(--space-6);
-    padding: var(--space-3) 0;
-    background-color: rgba(255, 255, 255, 0.75); /* Blurry glassmorphism */
+    padding: 16px 0;
+    background-color: rgba(255, 255, 255, 0.85); /* Premium glassy white */
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 0 0 24px 24px;
-    box-shadow: 0 10px 20px -10px rgba(0,0,0,0.1);
+    border-radius: 0 0 32px 32px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     display: flex;
     justify-content: center;
+    align-items: center;
   }
   
   .builder-preview.is-step-3 .qr-render-container {
