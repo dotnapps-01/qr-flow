@@ -500,7 +500,7 @@
   }
   .builder-header-section {
     order: 1; /* Always at the very top visually */
-    margin-top: var(--space-6); /* Carry over the margin from builder-config */
+    margin-top: 0; /* Let it sit flush with the page padding */
     display: flex;
     flex-direction: column;
     width: 100%;
