@@ -370,9 +370,10 @@
     gap: 0; /* Remove default gap to control spacing manually */
   }
   .builder-config {
-    margin-top: var(--space-6);
+    display: contents; /* Break out children so we can reorder them natively */
   }
   .builder-preview {
+    order: 4; /* Default to bottom for steps 1 and 2 */
     width: 100%;
     position: relative;
     top: 0;
@@ -380,7 +381,7 @@
   }
   
   .builder-preview.is-step-3 {
-    order: -1;
+    order: 2; /* Place exactly between header-row and content! */
     position: sticky;
     top: 64px;
     z-index: 40;
@@ -466,7 +467,12 @@
   .builder-title {
     font-size: 24px;
   }
+  .builder-content {
+    order: 3; /* Always below sticky preview on step 3 */
+  }
   .builder-header-row {
+    order: 1; /* Always at the very top visually */
+    margin-top: var(--space-6); /* Carry over the margin from builder-config */
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-3);
