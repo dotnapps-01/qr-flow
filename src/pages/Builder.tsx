@@ -550,7 +550,7 @@ export const Builder: React.FC = () => {
                       </div>
                     )}
                     {activeStep >= 2 && Object.keys(qrData).length > 0 && (
-                       <div style={{ marginTop: '20px', padding: '16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', fontSize: '12px', wordBreak: 'break-all', width: '100%', border: '1px solid var(--border-color)' }}>
+                       <div className="raw-data-preview" style={{ marginTop: '20px', padding: '16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', fontSize: '12px', wordBreak: 'break-all', width: '100%', border: '1px solid var(--border-color)' }}>
                           <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--text-primary)' }}>Raw Data Preview</h3>
                           {Object.entries(qrData).map(([k, v]) => (
                              <div key={k} style={{ marginBottom: '4px', display: 'flex', flexDirection: 'column' }}>
