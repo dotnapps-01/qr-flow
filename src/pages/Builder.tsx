@@ -293,7 +293,8 @@ export const Builder: React.FC = () => {
     <div className="builder-layout animate-fade-in">
       {/* Left Configuration Panel */}
       <div className="builder-config">
-        <div className="builder-header-row">
+        <div className="builder-header-section">
+          <div className="builder-header-row">
           <div className="builder-steps" style={{ paddingBottom: 0, borderBottom: 'none' }}>
             <div className={`step ${activeStep >= 1 ? 'step-active' : ''}`} onClick={() => setActiveStep(1)} style={{ cursor: 'pointer' }}>
               <div className="step-number">1</div>
@@ -328,10 +329,35 @@ export const Builder: React.FC = () => {
           </div>
         </div>
 
-        <div className="builder-content">
+        {/* Step Headers */}
+        {activeStep === 1 && (
+          <h1 className="builder-title">Select a QR type</h1>
+        )}
+        
+        {activeStep === 2 && selectedType && (
+          <div className="step-header-container animate-fade-in" style={{ marginTop: 'var(--space-6)' }}>
+            <div>
+              <h1 className="builder-title" style={{ margin: 0 }}>Configure Content</h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Fill out the details for your {qrTypes.find(t => t.id === selectedType)?.name} QR code</p>
+            </div>
+            <Button variant="outline" onClick={() => setActiveStep(1)}>Change Type</Button>
+          </div>
+        )}
+
+        {activeStep === 3 && (
+          <div className="step-header-container animate-fade-in" style={{ marginTop: 'var(--space-6)' }}>
+            <div>
+              <h1 className="builder-title" style={{ margin: 0 }}>QR Design</h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Customize the style, colors, and logo of your QR code</p>
+            </div>
+            <Button variant="outline" onClick={() => setActiveStep(2)}>Back to Content</Button>
+          </div>
+        )}
+      </div>
+
+      <div className="builder-content">
           {activeStep === 1 && (
             <>
-              <h1 className="builder-title">Select a QR type</h1>
               
               {!qrCategory ? (
                 <div className="qr-category-selection" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
@@ -430,13 +456,6 @@ export const Builder: React.FC = () => {
 
           {activeStep === 2 && selectedType && (
             <div className="animate-fade-in">
-              <div className="step-header-container">
-                <div>
-                  <h1 className="builder-title" style={{ margin: 0 }}>Configure Content</h1>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Fill out the details for your {qrTypes.find(t => t.id === selectedType)?.name} QR code</p>
-                </div>
-                <Button variant="outline" onClick={() => setActiveStep(1)}>Change Type</Button>
-              </div>
               
               <div className="form-container" style={{ backgroundColor: 'var(--bg-card)', padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
                 <div style={{ marginBottom: 'var(--space-6)' }}>
@@ -463,13 +482,6 @@ export const Builder: React.FC = () => {
 
           {activeStep === 3 && (
             <div className="animate-fade-in">
-              <div className="step-header-container">
-                <div>
-                  <h1 className="builder-title" style={{ margin: 0 }}>QR Design</h1>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Customize the style, colors, and logo of your QR code</p>
-                </div>
-                <Button variant="outline" onClick={() => setActiveStep(2)}>Back to Content</Button>
-              </div>
               
               <div className="form-container">
                  <QrDesign design={qrDesign} onChange={setQrDesign} />

@@ -470,9 +470,14 @@
   .builder-content {
     order: 3; /* Always below sticky preview on step 3 */
   }
-  .builder-header-row {
+  .builder-header-section {
     order: 1; /* Always at the very top visually */
     margin-top: var(--space-6); /* Carry over the margin from builder-config */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .builder-header-row {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-3);
