@@ -453,6 +453,26 @@
   .builder-preview.is-step-3 h3, .builder-preview.is-step-3 .raw-data-preview {
     display: none !important;
   }
+  
+  /* Sticky bottom footer for Save & Download actions */
+  .builder-actions-footer {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-card);
+    padding: var(--space-4) var(--space-6) calc(var(--space-4) + env(safe-area-inset-bottom, 16px));
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+    z-index: 50;
+    margin: 0 !important;
+    border-top: 1px solid var(--border-light) !important;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+  }
+  
+  .builder-content {
+    padding-bottom: 140px; /* Leave space for sticky footer to not cover the last setting */
+  }
 }
 
 @media (max-width: 768px) {

@@ -487,7 +487,7 @@ export const Builder: React.FC = () => {
                  <QrDesign design={qrDesign} onChange={setQrDesign} />
               </div>
               
-              <div style={{ marginTop: 'var(--space-8)', paddingTop: 'var(--space-6)', borderTop: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div className="builder-actions-footer" style={{ marginTop: 'var(--space-8)', paddingTop: 'var(--space-6)', borderTop: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                 <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
                   <Button variant="ghost" style={{ color: 'var(--danger)' }} onClick={handleDiscard}>
                     Discard
