@@ -541,7 +541,7 @@ export const Builder: React.FC = () => {
 
                   <div className="mockup-screen">
                     {activeStep >= 2 && Object.keys(qrData).length > 0 ? (
-                      <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '12px', boxShadow: 'var(--shadow-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className="qr-render-container">
                          <div ref={qrRef} />
                       </div>
                     ) : (
