@@ -430,7 +430,7 @@ export const Builder: React.FC = () => {
 
           {activeStep === 2 && selectedType && (
             <div className="animate-fade-in">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
+              <div className="step-header-container">
                 <div>
                   <h1 className="builder-title" style={{ margin: 0 }}>Configure Content</h1>
                   <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Fill out the details for your {qrTypes.find(t => t.id === selectedType)?.name} QR code</p>
@@ -463,7 +463,7 @@ export const Builder: React.FC = () => {
 
           {activeStep === 3 && (
             <div className="animate-fade-in">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
+              <div className="step-header-container">
                 <div>
                   <h1 className="builder-title" style={{ margin: 0 }}>QR Design</h1>
                   <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Customize the style, colors, and logo of your QR code</p>
