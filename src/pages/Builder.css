@@ -360,6 +360,12 @@
   }
   .builder-preview {
     width: 100%;
+    position: relative;
+    top: 0;
+    margin-top: var(--space-8);
+  }
+  
+  .builder-preview.is-step-3 {
     order: -1;
     position: sticky;
     top: 64px;
@@ -373,12 +379,14 @@
     box-shadow: var(--shadow-sm);
   }
   
-  /* Compact the preview elements */
-  .preview-header {
+  /* Compact the preview elements only in step 3 on mobile */
+  .builder-preview.is-step-3 .preview-header {
     display: none;
   }
   
-  .mockup-mobile, .mockup-browser, .mockup-card {
+  .builder-preview.is-step-3 .mockup-mobile, 
+  .builder-preview.is-step-3 .mockup-browser, 
+  .builder-preview.is-step-3 .mockup-card {
     height: auto !important;
     width: auto !important;
     max-width: none !important;
@@ -388,29 +396,32 @@
     padding: 0 !important;
   }
   
-  .phone-notch, .browser-header {
+  .builder-preview.is-step-3 .phone-notch, 
+  .builder-preview.is-step-3 .browser-header {
     display: none !important;
   }
   
-  .mockup-mobile .mockup-screen, .mockup-browser .mockup-screen, .mockup-card .mockup-screen {
+  .builder-preview.is-step-3 .mockup-mobile .mockup-screen, 
+  .builder-preview.is-step-3 .mockup-browser .mockup-screen, 
+  .builder-preview.is-step-3 .mockup-card .mockup-screen {
     padding: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
   }
   
-  /* Shrink the QR code itself on mobile layout */
-  .builder-preview svg {
+  /* Shrink the QR code itself on mobile layout in step 3 */
+  .builder-preview.is-step-3 svg {
     width: 140px !important;
     height: 140px !important;
   }
   
-  .qr-placeholder {
+  .builder-preview.is-step-3 .qr-placeholder {
     width: 140px;
     height: 140px;
   }
   
   /* Hide raw data preview on mobile to save space */
-  .builder-preview h3, .raw-data-preview {
+  .builder-preview.is-step-3 h3, .builder-preview.is-step-3 .raw-data-preview {
     display: none !important;
   }
 }

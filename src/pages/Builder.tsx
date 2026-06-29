@@ -510,7 +510,7 @@ export const Builder: React.FC = () => {
 
       {/* Right Preview Panel - Only show after a type is selected */}
       {activeStep > 1 && (
-        <div className="builder-preview">
+        <div className={`builder-preview ${activeStep === 3 ? 'is-step-3' : ''}`}>
           <div className="preview-container">
             <div className="preview-header">
               <span>Preview</span>
